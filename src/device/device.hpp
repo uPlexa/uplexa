@@ -48,6 +48,7 @@
 #include "crypto/crypto.h"
 #include "crypto/chacha.h"
 #include "ringct/rctTypes.h"
+#include "cryptonote_config.h"
 
 
 #ifndef USE_DEVICE_LEDGER
@@ -100,9 +101,16 @@ namespace hw {
         enum device_type
         {
           SOFTWARE = 0,
-          LEDGER = 1
+          LEDGER = 1,
+          TREZOR = 2
         };
 
+
+        enum device_protocol_t {
+            PROTOCOL_DEFAULT,
+            PROTOCOL_PROXY,     // Originally defined by Ledger
+            PROTOCOL_COLD,      // Originally defined by Trezor
+        };
 
         /* ======================================================================= */
         /*                              SETUP/TEARDOWN                             */
@@ -121,6 +129,7 @@ namespace hw {
 
         virtual device_type get_type() const = 0;
 
+        virtual device_protocol_t device_protocol() const { return PROTOCOL_DEFAULT; };
 
         /* ======================================================================= */
         /*  LOCKER                                                                 */
@@ -204,6 +213,11 @@ namespace hw {
         virtual bool  mlsag_sign(const rct::key &c, const rct::keyV &xx, const rct::keyV &alpha, const size_t rows, const size_t dsRows, rct::keyV &ss) = 0;
 
         virtual bool  close_tx(void) = 0;
+
+        virtual bool  has_ki_cold_sync(void) const { return false; }
+        virtual bool  has_tx_cold_sign(void) const { return false; }
+
+        virtual void  set_network_type(cryptonote::network_type network_type) { }
 
     protected:
         device_mode mode;

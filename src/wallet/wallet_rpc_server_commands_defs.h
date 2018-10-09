@@ -532,6 +532,67 @@ namespace wallet_rpc
     };
   };
 
+  struct COMMAND_RPC_DESCRIBE_TRANSFER
+  {
+    struct recipient
+    {
+      std::string address;
+      uint64_t amount;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(address)
+        KV_SERIALIZE(amount)
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct transfer_description
+    {
+      uint64_t amount_in;
+      uint64_t amount_out;
+      uint32_t ring_size;
+      uint64_t unlock_time;
+      std::list<recipient> recipients;
+      std::string payment_id;
+      uint64_t change_amount;
+      std::string change_address;
+      uint64_t fee;
+      uint32_t dummy_outputs;
+      std::string extra;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(amount_in)
+        KV_SERIALIZE(amount_out)
+        KV_SERIALIZE(ring_size)
+        KV_SERIALIZE(unlock_time)
+        KV_SERIALIZE(recipients)
+        KV_SERIALIZE(payment_id)
+        KV_SERIALIZE(change_amount)
+        KV_SERIALIZE(change_address)
+        KV_SERIALIZE(fee)
+        KV_SERIALIZE(dummy_outputs)
+        KV_SERIALIZE(extra)
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct request
+    {
+      std::string unsigned_txset;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(unsigned_txset)
+      END_KV_SERIALIZE_MAP()
+    };
+
+    struct response
+    {
+      std::list<transfer_description> desc;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(desc)
+      END_KV_SERIALIZE_MAP()
+    };
+  };
+
   struct COMMAND_RPC_SIGN_TRANSFER
   {
     struct request

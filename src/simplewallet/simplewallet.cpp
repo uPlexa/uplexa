@@ -1729,7 +1729,7 @@ bool simple_wallet::unblackball(const std::vector<std::string> &args)
   std::pair<uint64_t, uint64_t> output;
   if (args.size() != 1)
   {
-    fail_msg_writer() << tr("usage: mark_output_spent <amount>/<offset>");
+    fail_msg_writer() << tr("usage: mark_output_unspent <amount>/<offset>");
     return true;
   }
 
@@ -1745,7 +1745,7 @@ bool simple_wallet::unblackball(const std::vector<std::string> &args)
   }
   catch (const std::exception &e)
   {
-    fail_msg_writer() << tr("Failed to mark output spent: ") << e.what();
+    fail_msg_writer() << tr("Failed to mark output unspent: ") << e.what();
   }
 
   return true;
@@ -1771,7 +1771,7 @@ bool simple_wallet::blackballed(const std::vector<std::string> &args)
     if (m_wallet->is_output_blackballed(output))
       message_writer() << tr("Spent: ") << output.first << "/" << output.second;
     else
-      message_writer() << tr("Not Spent: ") << output.first << "/" << output.second;
+      message_writer() << tr("Not spent: ") << output.first << "/" << output.second;
   }
   catch (const std::exception &e)
   {

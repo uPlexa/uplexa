@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../../../src/version.h
+
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/version.cpp
+version.h
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/version.h
+

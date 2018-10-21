@@ -350,9 +350,7 @@ public:
     using error_type = std::error_code;
 
     //! Create a successful object.
-    expect() noexcept
-      : code_()
-    {}
+    expect() = default;
 
     expect(std::error_code const& code) noexcept
       : code_(code)

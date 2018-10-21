@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../../../contrib/epee/include/memwipe.h
+array
+-
+
+/home/ubuntu/fork/monero-0.13.0.2/contrib/epee/src/memwipe.c
+string.h
+-
+stdlib.h
+-
+stdio.h
+-
+unistd.h
+-
+strings.h
+-
+memwipe.h
+/home/ubuntu/fork/monero-0.13.0.2/contrib/epee/src/memwipe.h
+

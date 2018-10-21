@@ -2822,7 +2822,8 @@ namespace tools
     {
       try
       {
-        m_wallet->change_password(m_wallet->get_wallet_file(), req.old_password, req.new_password);
+        m_wallet->rewrite(m_wallet->get_wallet_file(), req.new_password);
+        m_wallet->store();
         LOG_PRINT_L0("Wallet password changed.");
       }
       catch (const std::exception& e)

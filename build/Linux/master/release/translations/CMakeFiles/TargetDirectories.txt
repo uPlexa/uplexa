@@ -1,0 +1,3 @@
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/translations/CMakeFiles/edit_cache.dir
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/translations/CMakeFiles/rebuild_cache.dir
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/translations/CMakeFiles/generate_translations_header.dir

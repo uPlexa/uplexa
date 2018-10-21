@@ -1,0 +1,2 @@
+/usr/bin/ar qc libringct_basic.a  CMakeFiles/obj_ringct_basic.dir/rctOps.cpp.o CMakeFiles/obj_ringct_basic.dir/rctTypes.cpp.o CMakeFiles/obj_ringct_basic.dir/rctCryptoOps.c.o CMakeFiles/obj_ringct_basic.dir/multiexp.cc.o CMakeFiles/obj_ringct_basic.dir/bulletproofs.cc.o
+/usr/bin/ranlib libringct_basic.a

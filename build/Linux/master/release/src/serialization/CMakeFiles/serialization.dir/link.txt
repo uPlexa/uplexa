@@ -1,0 +1,2 @@
+/usr/bin/ar qc libserialization.a  CMakeFiles/obj_serialization.dir/json_object.cpp.o
+/usr/bin/ranlib libserialization.a

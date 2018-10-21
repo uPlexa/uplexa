@@ -34,7 +34,6 @@
 #include "include_base_utils.h"
 #include "misc_log_ex.h"
 #include "storages/levin_abstract_invoke2.h"
-#include "common/util.h"
 
 #include "net_load_tests.h"
 
@@ -216,7 +215,6 @@ namespace
 
 int main(int argc, char** argv)
 {
-  TRY_ENTRY();
   tools::on_startup();
   //set up logging options
   mlog_configure(mlog_get_default_log_path("net_load_tests_srv.log"), true);
@@ -235,5 +233,4 @@ int main(int argc, char** argv)
   if (!tcp_server.run_server(thread_count, true))
     return 2;
   return 0;
-  CATCH_ENTRY_L0("main", 1);
 }

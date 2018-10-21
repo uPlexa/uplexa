@@ -1,0 +1,2 @@
+/usr/bin/ar qc librpc_base.a  CMakeFiles/obj_rpc_base.dir/rpc_args.cpp.o
+/usr/bin/ranlib librpc_base.a

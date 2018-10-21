@@ -1,0 +1,13 @@
+# Target labels
+ generate_translations_header
+# Source files and their labels
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/CMakeFiles/generate_translations_header
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/CMakeFiles/generate_translations_header.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/CMakeFiles/generate_translations_header-complete.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-install.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-mkdir.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-download.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-update.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-patch.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-configure.rule
+/home/ubuntu/fork/monero-0.13.0.2/build/Linux/master/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-build.rule

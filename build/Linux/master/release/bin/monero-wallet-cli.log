@@ -1,0 +1,2 @@
+2018-10-21 16:57:32.292	    7f2cf5bd2780	INFO 	logging	contrib/epee/src/mlog.cpp:242	New log categories: *:WARNING,net:FATAL,net.http:FATAL,net.p2p:FATAL,net.cn:FATAL,global:INFO,verify:FATAL,stacktrace:INFO,logging:INFO,msgwriter:INFO
+2018-10-21 16:57:38.244	    7fa3f79e6780	INFO 	logging	contrib/epee/src/mlog.cpp:242	New log categories: *:WARNING,net:FATAL,net.http:FATAL,net.p2p:FATAL,net.cn:FATAL,global:INFO,verify:FATAL,stacktrace:INFO,logging:INFO,msgwriter:INFO

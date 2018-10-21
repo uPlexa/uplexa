@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../lib/libwallet.a  CMakeFiles/obj_wallet.dir/wallet2.cpp.o CMakeFiles/obj_wallet.dir/wallet_args.cpp.o CMakeFiles/obj_wallet.dir/ringdb.cpp.o CMakeFiles/obj_wallet.dir/node_rpc_proxy.cpp.o
+/usr/bin/ranlib ../../lib/libwallet.a

@@ -56,6 +56,31 @@
 namespace po = boost::program_options;
 namespace bf = boost::filesystem;
 
+void print_genesis_tx_hex() {
+//network_type nettype = MAINNET
+using namespace cryptonote;
+
+//Prepare genesis_tx
+cryptonote::account_base account;
+account.generate();
+cryptonote::transaction tx_genesis;
+cryptonote::construct_miner_tx(0, 0, 0, 10, 0, account.get_keys().m_account_address, tx_genesis);
+
+std::cout << "Object:" << std::endl;
+std::cout << obj_to_json_str(tx_genesis) << std::endl << std::endl;
+
+
+std::stringstream ss;
+binary_archive<true> ba(ss);
+::serialization::serialize(ba, tx_genesis);
+std::string tx_hex = ss.str();
+std::cout << "Insert this line into your coin configuration file: " << std::endl;
+std::cout << "std::string const GENESIS_TX = \"" << string_tools::buff_to_hex_nodelimer(tx_hex) << "\";" << std::endl;
+
+return;
+}
+
+
 int main(int argc, char const * argv[])
 {
   try {
@@ -122,6 +147,7 @@ int main(int argc, char const * argv[])
       std::cout << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << ENDL << ENDL;
       std::cout << "Usage: " + std::string{argv[0]} + " [options|settings] [daemon_command...]" << std::endl << std::endl;
       std::cout << visible_options << std::endl;
+      print_genesis_tx_hex();
       return 0;
     }
 

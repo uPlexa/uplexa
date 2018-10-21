@@ -1,0 +1,2 @@
+/usr/bin/ar qc libdaemon_rpc_server.a  CMakeFiles/obj_daemon_rpc_server.dir/daemon_handler.cpp.o CMakeFiles/obj_daemon_rpc_server.dir/zmq_server.cpp.o
+/usr/bin/ranlib libdaemon_rpc_server.a

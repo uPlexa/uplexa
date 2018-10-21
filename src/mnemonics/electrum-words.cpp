@@ -216,7 +216,7 @@ namespace
     }
     boost::crc_32_type result;
     result.process_bytes(trimmed_words.data(), trimmed_words.length());
-    return result.checksum() % crypto::ElectrumWords::seed_length;
+    return result.checksum() % word_list.size();
   }
 
   /*!

@@ -1048,10 +1048,10 @@ namespace cryptonote
       return true;
     }
     blobdata bd = get_block_hashing_blob(b);
-    // const int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+    const int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
     // Opting out of CNv2 PoW Change due to decreased efficiency on lower-end CPU devices.
-    const int cn_variant = 1;
-    crypto::cn_slow_hash(bd.data(), bd.size(), res, height >= HARDFORK_1_HEIGHT || b.major_version >= 2, cn_variant);
+    const int cn_miner_variant = 1;
+    crypto::cn_slow_hash(bd.data(), bd.size(), res, height >= HARDFORK_1_HEIGHT || b.major_version >= 2, cn_miner_variant);
     return true;
   }
   //---------------------------------------------------------------

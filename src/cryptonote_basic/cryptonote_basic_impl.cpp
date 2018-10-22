@@ -95,7 +95,7 @@ namespace cryptonote {
 
     //Premine stuff
     const uint64_t premine = 73500000000U;
-    if (median_weight > 0 && already_generated_coins < premine) {
+    if (median_weight > 0 && already_generated_coins < premine && version>=9) {
      reward = premine;
       return true;
     }

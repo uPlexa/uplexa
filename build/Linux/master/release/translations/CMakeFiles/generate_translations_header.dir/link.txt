@@ -1,1 +1,0 @@
-/usr/bin/cc     CMakeFiles/generate_translations_header.dir/generate_translations_header.c.o  -o generate_translations_header -rdynamic 

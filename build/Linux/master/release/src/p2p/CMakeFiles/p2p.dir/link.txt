@@ -1,2 +1,0 @@
-/usr/bin/ar qc libp2p.a  CMakeFiles/obj_p2p.dir/net_node.cpp.o
-/usr/bin/ranlib libp2p.a

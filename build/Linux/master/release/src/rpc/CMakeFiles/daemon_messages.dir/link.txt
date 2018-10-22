@@ -1,2 +1,0 @@
-/usr/bin/ar qc libdaemon_messages.a  CMakeFiles/obj_daemon_messages.dir/message.cpp.o CMakeFiles/obj_daemon_messages.dir/daemon_messages.cpp.o
-/usr/bin/ranlib libdaemon_messages.a

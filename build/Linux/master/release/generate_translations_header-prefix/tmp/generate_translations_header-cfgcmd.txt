@@ -1,1 +1,0 @@
-cmd='/usr/bin/cmake;-DLRELEASE_PATH=;-GUnix Makefiles;/home/ubuntu/fork/monero-0.13.0.2/translations'

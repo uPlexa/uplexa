@@ -71,8 +71,8 @@
 #define COIN                                            ((uint64_t)1000000000000) // pow(10, 12)
 
 #define FEE_PER_KB_OLD                                  ((uint64_t)10000000000) // pow(10, 10)
-#define FEE_PER_KB                                      ((uint64_t)1) //
-#define FEE_PER_BYTE                                    ((uint64_t)300)
+#define FEE_PER_KB                                      ((uint64_t)25) //
+#define FEE_PER_BYTE                                    ((uint64_t)3000)
 #define DYNAMIC_FEE_PER_KB_BASE_FEE                     ((uint64_t)2000000000) // 2 * pow(10,9)
 #define DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD            ((uint64_t)10000000000000) // 10 * pow(10,12)
 #define DYNAMIC_FEE_PER_KB_BASE_FEE_V5                  ((uint64_t)2000000000 * (uint64_t)CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 / CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5)
@@ -130,7 +130,7 @@
 
 #define ALLOW_DEBUG_COMMANDS
 
-#define CRYPTONOTE_NAME                         "bitmonero"
+#define CRYPTONOTE_NAME                         "uplexa"
 #define CRYPTONOTE_POOLDATA_FILENAME            "poolstate.bin"
 #define CRYPTONOTE_BLOCKCHAINDATA_FILENAME      "data.mdb"
 #define CRYPTONOTE_BLOCKCHAINDATA_LOCK_FILENAME "lock.mdb"
@@ -159,7 +159,7 @@ namespace config
 {
   uint64_t const DEFAULT_FEE_ATOMIC_XMR_PER_KB = 500; // Just a placeholder!  Change me!
   uint8_t const FEE_CALCULATION_MAX_RETRIES = 10;
-  uint64_t const DEFAULT_DUST_THRESHOLD = ((uint64_t)1); // 2 * pow(10, 9)
+  uint64_t const DEFAULT_DUST_THRESHOLD = ((uint64_t)1); // 2 * pow(10, 9) -> nah. 1
   uint64_t const BASE_REWARD_CLAMP_THRESHOLD = ((uint64_t)100000000); // pow(10, 8)
   std::string const P2P_REMOTE_DEBUG_TRUSTED_PUB_KEY = "0000000000000000000000000000000000000000000000000000000000000000";
 

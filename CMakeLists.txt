@@ -41,7 +41,7 @@ endif()
 
 cmake_minimum_required(VERSION 2.8.7)
 
-project(monero)
+project(uplexa)
 
 function (die msg)
   if (NOT WIN32)
@@ -496,7 +496,7 @@ include_directories(${LIBUNWIND_INCLUDE})
 link_directories(${LIBUNWIND_LIBRARY_DIRS})
 
 # Final setup for hid
-if (HIDAPI_FOUND) 
+if (HIDAPI_FOUND)
   message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
   add_definitions(-DHAVE_HIDAPI)
   include_directories(${HIDAPI_INCLUDE_DIR})
@@ -783,7 +783,7 @@ else()
   endif(ARM)
 
   if(ANDROID AND NOT BUILD_GUI_DEPS STREQUAL "ON" OR IOS)
-    #From Android 5: "only position independent executables (PIE) are supported" 
+    #From Android 5: "only position independent executables (PIE) are supported"
     message(STATUS "Enabling PIE executable")
     set(PIC_FLAG "")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE")
@@ -904,7 +904,7 @@ endif()
 
 list(APPEND EXTRA_LIBRARIES ${CMAKE_DL_LIBS})
 
-if (HIDAPI_FOUND) 
+if (HIDAPI_FOUND)
   if (APPLE)
     if(DEPENDS)
       list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework IOKit")

@@ -771,6 +771,7 @@ namespace cryptonote
       case 9:
       case 6:
       case 3:
+      case 2:
       case 0:
         default_decimal_point = decimal_point;
         break;
@@ -790,16 +791,10 @@ namespace cryptonote
       decimal_point = default_decimal_point;
     switch (std::atomic_load(&default_decimal_point))
     {
-      case 12:
-        return "monero";
-      case 9:
-        return "millinero";
-      case 6:
-        return "micronero";
-      case 3:
-        return "nanonero";
+      case 2:
+        return "uplexa";
       case 0:
-        return "piconero";
+        return "muplexa";
       default:
         ASSERT_MES_AND_THROW("Invalid decimal point specification: " << default_decimal_point);
     }
@@ -1053,7 +1048,8 @@ namespace cryptonote
       return true;
     }
     blobdata bd = get_block_hashing_blob(b);
-    //const int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+    // const int cn_variant = b.major_version >= 7 ? b.major_version - 6 : 0;
+    // Opting out of CNv2 PoW Change due to decreased efficiency on lower-end CPU devices.
     const int cn_variant = 1;
     crypto::cn_slow_hash(bd.data(), bd.size(), res, height >= HARDFORK_1_HEIGHT || b.major_version >= 2, cn_variant);
     return true;

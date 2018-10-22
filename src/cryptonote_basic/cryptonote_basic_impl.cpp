@@ -87,17 +87,14 @@ namespace cryptonote {
   }
   //-----------------------------------------------------------------------------------------------
   bool get_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint8_t version) {
-    static_assert(DIFFICULTY_TARGET_V2%60==0&&DIFFICULTY_TARGET_V1%60==0,"difficulty targets must be a multiple of 60");
-    const int target = version < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
+    const int target = DIFFICULTY_TARGET;
     const int target_minutes = target / 60;
-    const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - (target_minutes-1);
+    const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - int_log2(target_minutes);
 
     uint64_t full_reward_zone = get_min_block_weight(version);
 
     //Premine stuff
     const uint64_t premine = 73500000000U;
-    //const uint64_t premine = 52500000000U;
-    //if (median_size > 0 && already_generated_coins < premine) {
     if (median_weight > 0 && already_generated_coins < premine) {
      reward = premine;
       return true;

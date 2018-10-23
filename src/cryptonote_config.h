@@ -33,13 +33,6 @@
 #include <string>
 #include <boost/uuid/uuid.hpp>
 
-
-#define HARDFORK_1_HEIGHT                               1
-#define HARDFORK_1_POW_SPEED_MULTIPLIER                 2
-#define HARDFORK_1_DIFFADJ                              HARDFORK_1_POW_SPEED_MULTIPLIER
-#define HARDFORK_1_DIFFADJ_WINDOW                       360
-
-
 #define CRYPTONOTE_DNS_TIMEOUT_MS                       20000
 
 #define CRYPTONOTE_MAX_BLOCK_NUMBER                     500000000
@@ -47,7 +40,7 @@
 #define CRYPTONOTE_GETBLOCKTEMPLATE_MAX_BLOCK_SIZE	196608 //size of block (bytes) that is the maximum that miners will produce
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER          0
-#define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            18
+#define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            60
 #define CURRENT_TRANSACTION_VERSION                     2
 #define CURRENT_BLOCK_MAJOR_VERSION                     1
 #define CURRENT_BLOCK_MINOR_VERSION                     0
@@ -145,6 +138,7 @@
 #define HF_VERSION_MIN_MIXIN_10                 8
 #define HF_VERSION_ENFORCE_RCT                  6
 #define HF_VERSION_PER_BYTE_FEE                 8
+#define HARDFORK_1_HEIGHT                       1
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 

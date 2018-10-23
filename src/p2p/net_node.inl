@@ -392,10 +392,12 @@ namespace nodetool
     if (nettype == cryptonote::TESTNET)
     {
       full_addrs.insert("104.36.87.229:22060");
+      full_addrs.insert("18.220.78.181:22060");
     }
     else if (nettype == cryptonote::STAGENET)
     {
       full_addrs.insert("104.36.87.229:23060");
+      full_addrs.insert("18.220.78.181:23060");
     }
     else if (nettype == cryptonote::FAKECHAIN)
     {
@@ -406,6 +408,7 @@ namespace nodetool
       full_addrs.insert("104.36.87.227:21060");
       full_addrs.insert("104.36.87.229:21060");
       full_addrs.insert("18.220.78.181:21060");
+      full_addrs.insert("34.219.191.154:21060");
 
     }
     return full_addrs;

@@ -93,11 +93,9 @@ namespace cryptonote {
 
     uint64_t full_reward_zone = get_min_block_weight(version);
 
-    //Premine stuff
     const uint64_t premine = 73500000000U;
-    const uint64_t pre_per_block = 6681818181U;
     if (median_weight > 0 && already_generated_coins < premine && version>=9) {
-     reward = pre_per_block; //This allows us to premine the permine over 11 blocks, giving us 11 outputs.
+     reward = premine;
       return true;
     }
 

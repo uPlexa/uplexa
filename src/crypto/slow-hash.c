@@ -41,7 +41,7 @@
 #include "variant2_int_sqrt.h"
 
 #define MEMORY         (1 << 21) // 2MB scratchpad
-#define ITER           (1 << 20)
+#define ITER() (variant >= 1 ? (1 << 18) : (1 << 20)) // 2^18 = 262,144
 #define AES_BLOCK_SIZE  16
 #define AES_KEY_SIZE    32
 #define INIT_SIZE_BLK   8
@@ -772,7 +772,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
     // the useAes test is only performed once, not every iteration.
     if(useAes)
     {
-        for(i = 0; i < ITER / (light?2:1) / 2; i++)
+        for(i = 0; i < ITER() / 2; i++)
         {
             pre_aes();
             _c = _mm_aesenc_si128(_c, _a);
@@ -781,7 +781,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
     }
     else
     {
-        for(i = 0; i < ITER / (light?2:1) / 2; i++)
+        for(i = 0; i < ITER() / 2; i++)
         {
             pre_aes();
             aesb_single_round((uint8_t *) &_c, (uint8_t *) &_c, (uint8_t *) &_a);
@@ -1124,7 +1124,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
     _b = vld1q_u8((const uint8_t *)b);
     _b1 = vld1q_u8(((const uint8_t *)b) + AES_BLOCK_SIZE);
 
-    for(i = 0; i < ITER / (light?2:1) / 2; i++)
+    for(i = 0; i < ITER() / 2; i++)
     {
         pre_aes();
         _c = vaeseq_u8(_c, zero);
@@ -1331,7 +1331,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
     U64(b)[0] = U64(&state.k[16])[0] ^ U64(&state.k[48])[0];
     U64(b)[1] = U64(&state.k[16])[1] ^ U64(&state.k[48])[1];
 
-    for(i = 0; i < ITER / (light?2:1) / 2; i++)
+    for(i = 0; i < ITER() / 2; i++)
     {
       #define MASK(div) ((uint32_t)(((MEMORY / AES_BLOCK_SIZE / (div) - 1) << 4))
       #define state_index(x,div) ((*(uint32_t *) x) & MASK(div))
@@ -1522,7 +1522,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
     b[i] = state.k[AES_BLOCK_SIZE + i] ^ state.k[AES_BLOCK_SIZE * 3 + i];
   }
 
-  for (i = 0; i < ITER / (light?2:1) / 2; i++) {
+  for (i = 0; i < ITER() / 2; i++) {
     /* Dependency chain: address -> read value ------+
      * written value <-+ hard function (AES or MUL) <+
      * next address  <-+

@@ -33,6 +33,8 @@
 #include <string>
 #include <boost/uuid/uuid.hpp>
 
+
+#define HARDFORK_1_HEIGHT                               1
 #define CRYPTONOTE_DNS_TIMEOUT_MS                       20000
 
 #define CRYPTONOTE_MAX_BLOCK_NUMBER                     500000000
@@ -64,7 +66,7 @@
 #define COIN                                            ((uint64_t)1000000000000) // pow(10, 12)
 
 #define FEE_PER_KB_OLD                                  ((uint64_t)10000000000) // pow(10, 10)
-#define FEE_PER_KB                                      ((uint64_t)25) 
+#define FEE_PER_KB                                      ((uint64_t)25)
 #define FEE_PER_BYTE                                    ((uint64_t)3000)
 #define DYNAMIC_FEE_PER_KB_BASE_FEE                     ((uint64_t)2000000000) // 2 * pow(10,9)
 #define DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD            ((uint64_t)10000000000000) // 10 * pow(10,12)
@@ -138,7 +140,6 @@
 #define HF_VERSION_MIN_MIXIN_10                 8
 #define HF_VERSION_ENFORCE_RCT                  6
 #define HF_VERSION_PER_BYTE_FEE                 8
-#define HARDFORK_1_HEIGHT                       1
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 

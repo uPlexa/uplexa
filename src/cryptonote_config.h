@@ -64,7 +64,7 @@
 #define COIN                                            ((uint64_t)1000000000000) // pow(10, 12)
 
 #define FEE_PER_KB_OLD                                  ((uint64_t)10000000000) // pow(10, 10)
-#define FEE_PER_KB                                      ((uint64_t)25) //
+#define FEE_PER_KB                                      ((uint64_t)25) 
 #define FEE_PER_BYTE                                    ((uint64_t)3000)
 #define DYNAMIC_FEE_PER_KB_BASE_FEE                     ((uint64_t)2000000000) // 2 * pow(10,9)
 #define DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD            ((uint64_t)10000000000000) // 10 * pow(10,12)
@@ -168,8 +168,8 @@ namespace config
   boost::uuids::uuid const NETWORK_ID = { {
       0xF1 ,0xF1, 0x00, 0x61 , 0x71, 0x01 , 0x41, 0x61, 0x00, 0x30, 0x82, 0xA1, 0x12, 0x16, 0xA1, 0xA1
     } }; // Bender's nightmare
-  std::string const GENESIS_TX = "011201ff0005090265eb6230a5dc8a380e758eef639defb7355ccd90131752778f678f56449a7b6c1e027df97ef05801014e271baeb99ed20a61bb4dc73c4f51f1737e6e7fba83f2662eac020209994810a926d99babf3fa941852898f38486087284bf01f756c675fc31284bcd08603026c3f9da1159c2a9e5a4e013b713d7c5a6cbdad251119570a57f9369601bbeeb4c09a0c02c72690219e1e73c106acee07f689daa9e340d944ec55bf6bf5e4127b8b571a58210198c75d887f15521968447530c66a66d90c65a575c64b85168d793dfb3efd078d";
-  uint32_t const GENESIS_NONCE = 10000;
+    std::string const GENESIS_TX = "013c01ff0005090299f780a50b4a32bb073160d9ffd9ac3a56b8848cbd4fca1a32f2e3b4bdda32601e028df8a2887b6fc40c8a5f8d71da9071e4ec7e73d3dfebc30f1ee2aac5c7fbd56aac020223c639861f1259cf41dcbccdac8e68f5194e9a15e7817accd97fbe52239d832cd0860302736caee707092c733eeea0b019fac896c0f66829c57815fd8b68e8c53ebd3ed8c09a0c02d62dd9aa3ca0b9c4dfa5361a9a908f2207a0dba415e46db5110eb7e60f61186121018790193f157f45d642de432da453be81b1f2d2d358757823c0f48e444859491d";
+    uint32_t const GENESIS_NONCE = 10000;
 
   namespace testnet
   {
@@ -184,8 +184,7 @@ namespace config
     boost::uuids::uuid const NETWORK_ID = { {
         0x12 ,0xF1, 0x00, 0x61 , 0x71, 0x01 , 0x41, 0x61, 0x00, 0x31, 0x82, 0xA1, 0x12, 0x16, 0xA1, 0xA1
       } }; // Bender's daydream
-    std::string const GENESIS_TX = "011201ff000509020ec6ffc0ada0e3d9dbdb130f08211b398ec0a1b1af887a083ddd5d0903929d121e027de21ca40219de5b8b28587daf0146e6ede789ad40021b658a2cfd457a9f348aac020243d9290e86f1cc41a8cc6ab8a2aa37e51450e5008c54e80fb94450d30047501fd08603024c1becdba82ea4defa203d46f558bea125bfeae25d0f02cc98d0718874ed6f65c09a0c024a97cfd1fed971e6d278c6a67acc46e73afe6ad4ff075b4c69048c2dc89debb42101042bc4c4a4ab0411bdba65dee972b5485b75a36506a8e11c3d026e6080c4c32c";
-
+    std::string const GENESIS_TX = "013c01ff000509027d0274a9939602c664d5a8b5c6831bb42c192ae57bded8c57f44b1833cb1629c1e0274e4174f847da69a48c8269a29bdd2bc473355953fc1b5860cfa3352af01043dac020213f880e3314ad9c46e9f99cc822fb23fa0d1a802a17ad0c22688b0980bba5533d0860302146144a8b7cbee8157bfea25f7f35d3cd199f4a2b6e137b3fdaade89b2a03ddac09a0c027c1a3cadd582454fcdc48f4fb68679c507604a657fa572e8c9a53ee0583b025221016f1f500ab50b6d90a3f000211387b9bb9812f166de3e29ffd999c765b5fe28e6";
     uint32_t const GENESIS_NONCE = 10001;
   }
 
@@ -202,8 +201,7 @@ namespace config
     boost::uuids::uuid const NETWORK_ID = { {
         0x12 ,0xF1, 0x00, 0x61 , 0x71, 0x01 , 0x41, 0x61, 0x00, 0x31, 0x82, 0x30, 0x12, 0x16, 0xA1, 0xA1
       } }; // Bender's daydream
-    std::string const GENESIS_TX = "011201ff000509021f0e137b95d1e1e554ff7a839cf7d41c22881074bf8712c4c52dc52daa7191581e028907eeb573fbba80a61ff356d23d6e14aa7aaa337309818e442871c1a08b3b66ac0202f2f364262f97347f6f2d4e2eb5fa0a7346204220b3bfff84db47bdcdeb984c20d086030253b1575d758d81fb9b350a50eac956903caf69986689d3fbd14d902df87ad689c09a0c02f2e2c9210c0e9553411d1c80bd787f28028d921c05bda25b485253303ac4322a2101bfdec212647b6adb883904df8132cd52df6ac70070a11a3279605175449a42d2";
-
+    std::string const GENESIS_TX = "013c01ff000509027fc3209bb760e86e5996fbbb112aa6f779c916f8a8aa6a36462ebf0c46452cf41e026af2edccde0c0a2c2b278f37449ef2c84fee1807db5d28d5ea3ead550a861dcdac0202d82dee932e8c4bd93e3fc23d08d6a3d885223f4d7a30808ac30ba29b5c2c8940d0860302dae61c5da8ac7fc3f0cc213e22717490d6204f16bf6bdd678e1285445b8ff59bc09a0c02e01ad3b8474b725b524f0b5c6ea751d0e51a8749862a843fd29251e288ef949221013768a51d237d0143cf26317779096ba2df799c0bcd0ac0c6e26493edbef7d031";
     uint32_t const GENESIS_NONCE = 10002;
   }
 }

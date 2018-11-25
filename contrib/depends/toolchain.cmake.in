@@ -5,7 +5,7 @@ SET(CMAKE_BUILD_TYPE release)
 SET(STATIC true)
 SET(UNBOUND_STATIC true)
 
-# where is the target environment 
+# where is the target environment
 SET(CMAKE_FIND_ROOT_PATH @prefix@ /usr)
 
 SET(ENV{PKG_CONFIG_PATH} @prefix@/lib/pkgconfig)
@@ -51,7 +51,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   SET(APPLE True)
   SET(BUILD_TAG "mac-x64")
   SET(BUILD_64 ON)
+  if(NOT TRAVIS)
   SET(ARCH "x86_64")
+  endif()
   SET(BREW OFF)
   SET(PORT OFF)
   SET(CMAKE_OSX_SYSROOT "@sdk@/MacOSX10.11.sdk/")

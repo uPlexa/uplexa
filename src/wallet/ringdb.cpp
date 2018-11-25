@@ -1,21 +1,21 @@
 // Copyright (c) 2018, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -210,7 +210,7 @@ ringdb::ringdb(std::string filename, const std::string &genesis):
   THROW_WALLET_EXCEPTION_IF(dbr, tools::error::wallet_internal_error, "Failed to create LDMB environment: " + std::string(mdb_strerror(dbr)));
   dbr = mdb_env_set_maxdbs(env, 2);
   THROW_WALLET_EXCEPTION_IF(dbr, tools::error::wallet_internal_error, "Failed to set max env dbs: " + std::string(mdb_strerror(dbr)));
-  const std::string actual_filename = get_rings_filename(filename); 
+  const std::string actual_filename = get_rings_filename(filename);
   dbr = mdb_env_open(env, actual_filename.c_str(), 0, 0664);
   THROW_WALLET_EXCEPTION_IF(dbr, tools::error::wallet_internal_error, "Failed to open rings database file '"
       + actual_filename + "': " + std::string(mdb_strerror(dbr)));
@@ -412,13 +412,13 @@ bool ringdb::blackball_worker(const std::vector<std::pair<uint64_t, uint64_t>> &
     switch (op)
     {
       case BLACKBALL_BLACKBALL:
-        MDEBUG("Blackballing output " << output.first << "/" << output.second);
+        MDEBUG("Marking output " << output.first << "/" << output.second << " as spent");
         dbr = mdb_cursor_put(cursor, &key, &data, MDB_APPENDDUP);
         if (dbr == MDB_KEYEXIST)
           dbr = 0;
         break;
       case BLACKBALL_UNBLACKBALL:
-        MDEBUG("Unblackballing output " << output.first << "/" << output.second);
+        MDEBUG("Marking output " << output.first << "/" << output.second << " as unspent");
         dbr = mdb_cursor_get(cursor, &key, &data, MDB_GET_BOTH);
         if (dbr == 0)
           dbr = mdb_cursor_del(cursor, 0);

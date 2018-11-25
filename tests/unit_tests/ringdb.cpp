@@ -1,21 +1,21 @@
 // Copyright (c) 2018, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -136,21 +136,21 @@ TEST(ringdb, different_genesis)
   ASSERT_FALSE(ringdb.get_ring(KEY_2, KEY_IMAGE_1, outs2));
 }
 
-TEST(blackball, not_found)
+TEST(spent_outputs, not_found)
 {
   RingDB ringdb;
   ASSERT_TRUE(ringdb.blackball(OUTPUT_1));
   ASSERT_FALSE(ringdb.blackballed(OUTPUT_2));
 }
 
-TEST(blackball, found)
+TEST(spent_outputs, found)
 {
   RingDB ringdb;
   ASSERT_TRUE(ringdb.blackball(OUTPUT_1));
   ASSERT_TRUE(ringdb.blackballed(OUTPUT_1));
 }
 
-TEST(blackball, vector)
+TEST(spent_outputs, vector)
 {
   RingDB ringdb;
   std::vector<std::pair<uint64_t, uint64_t>> outputs;
@@ -174,7 +174,7 @@ TEST(blackball, vector)
   ASSERT_TRUE(ringdb.blackballed(std::make_pair(30, 5)));
 }
 
-TEST(blackball, unblackball)
+TEST(spent_outputs, mark_as_unspent)
 {
   RingDB ringdb;
   ASSERT_TRUE(ringdb.blackball(OUTPUT_1));
@@ -182,11 +182,10 @@ TEST(blackball, unblackball)
   ASSERT_FALSE(ringdb.blackballed(OUTPUT_1));
 }
 
-TEST(blackball, clear)
+TEST(spent_outputs, clear)
 {
   RingDB ringdb;
   ASSERT_TRUE(ringdb.blackball(OUTPUT_1));
   ASSERT_TRUE(ringdb.clear_blackballs());
   ASSERT_FALSE(ringdb.blackballed(OUTPUT_1));
 }
-

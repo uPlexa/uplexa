@@ -54,27 +54,19 @@ If you want to help out, see [CONTRIBUTING](CONTRIBUTING.md) for a set of guidel
 
 ## Scheduled software upgrades
 
-uPlexa uses a fixed-schedule software upgrade (hard fork) mechanism to implement new features. This means that users of uPlexa (end users and service providers) should run current versions and upgrade their software on a regular schedule. Software upgrades occur during the months of April and October. The required software for these upgrades will be available prior to the scheduled date. Please check the repository prior to this date for the proper uPlexa software version. Below is the historical schedule and the projected schedule for the next upgrade.
-Dates are provided in the format YYYY-MM-DD. 
+uPlexa uses a fixed-schedule software upgrade (hard fork) mechanism to implement new features. This means that users of uPlexa (end users and service providers) should run current versions and upgrade their software on a regular schedule. Software upgrades occur during the months of March and August. The required software for these upgrades will be available prior to the scheduled date. Please check the repository prior to this date for the proper uPlexa software version. Below is the historical schedule and the projected schedule for the next upgrade.
+Dates are provided in the format YYYY-MM-DD.
 
 
 | Software upgrade block height | Date       | Fork version | Minimum uPlexa version | Recommended uPlexa version | Details                                                                            |  
 | ------------------------------ | -----------| ----------------- | ---------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
-| 1009827                        | 2016-03-22 | v2                | v0.9.4                 | v0.9.4                     | Allow only >= ringsize 3, blocktime = 120 seconds, fee-free blocksize 60 kb       |
-| 1141317                        | 2016-09-21 | v3                | v0.9.4                 | v0.10.0                    | Splits coinbase into denominations  |
-| 1220516                        | 2017-01-05 | v4                | v0.10.1                | v0.10.2.1                  | Allow normal and RingCT transactions |
-| 1288616                        | 2017-04-15 | v5                | v0.10.3.0              | v0.10.3.1                  | Adjusted minimum blocksize and fee algorithm      |
-| 1400000                        | 2017-09-16 | v6                | v0.11.0.0              | v0.11.0.0                  | Allow only RingCT transactions, allow only >= ringsize 5      |
-| 1546000                        | 2018-04-06 | v7                | v0.12.0.0              | v0.12.3.0                  | Cryptonight variant 1, ringsize >= 7, sorted inputs
-| 1685555                        | 2018-10-18 | v8                | v0.1.9.6              | v0.1.9.6                  | max transaction size at half the penalty free block size, bulletproofs enabled, cryptonight variant 2, fixed ringsize [11](https://youtu.be/KOO5S4vxi0o)
-| 1686275                        | 2018-10-19 | v9                | v0.1.9.6              | v0.1.9.6                  | bulletproofs required
-| XXXXXXX                        | 2019-04-XX | XX                | XXXXXXXXX              | XXXXXXXXX                  | X
-
+| 2                        | 2018-10-23 | v9                | v0.1.9.0                 | v0.1.9.0                     | CryptoNight-UPX, BulletProof
+| 52279                        | 2018-11-25 | v10                | v0.1.9.6                 | v0.1.9.6                     | 120s block times
 X's indicate that these details have not been determined as of commit date.
 
 ## Release staging schedule and protocol
 
-Approximately three months prior to a scheduled software upgrade, a branch from Master will be created with the new release version tag. Pull requests that address bugs should then be made to both Master and the new release branch. Pull requests that require extensive review and testing (generally, optimizations and new features) should *not* be made to the release branch. 
+Approximately three months prior to a scheduled software upgrade, a branch from Master will be created with the new release version tag. Pull requests that address bugs should then be made to both Master and the new release branch. Pull requests that require extensive review and testing (generally, optimizations and new features) should *not* be made to the release branch.
 
 ## Compiling uPlexa from source
 
@@ -147,12 +139,12 @@ invokes cmake commands as needed.
 
     *Note*: If cmake can not find zmq.hpp file on OS X, installing `zmq.hpp` from
     https://github.com/zeromq/cppzmq to `/usr/local/include` should fix that error.
-    
+
     *Note*: The instructions above will compile the most stable release of the
     uPlexa software. If you would like to use and test the most recent software,
     use ```git checkout master```. The master branch may contain updates that are
-    both unstable and incompatible with release software, though testing is always 
-    encouraged. 
+    both unstable and incompatible with release software, though testing is always
+    encouraged.
 
 * The resulting executables can be found in `build/release/bin`
 
@@ -182,14 +174,14 @@ Dependencies need to be built with -fPIC. Static libraries usually aren't, so yo
 
 #### On the Raspberry Pi
 
-Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (2017-09-07 or later) from https://www.raspberrypi.org/downloads/raspbian/. If you are using Raspian Jessie, [please see note in the following section](#note-for-raspbian-jessie-users). 
+Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (2017-09-07 or later) from https://www.raspberrypi.org/downloads/raspbian/. If you are using Raspian Jessie, [please see note in the following section](#note-for-raspbian-jessie-users).
 
 * `apt-get update && apt-get upgrade` to install all of the latest software
 
 * Install the dependencies for uPlexa from the 'Debian' column in the table above.
 
 * Increase the system swap size:
-```	
+```
 	sudo /etc/init.d/dphys-swapfile stop  
 	sudo nano /etc/dphys-swapfile  
 	CONF_SWAPSIZE=1024  
@@ -221,7 +213,7 @@ If you are using the older Raspbian Jessie image, compiling uPlexa is a bit more
 
 * As before, `apt-get update && apt-get upgrade` to install all of the latest software, and increase the system swap size
 
-```	
+```
 	sudo /etc/init.d/dphys-swapfile stop  
 	sudo nano /etc/dphys-swapfile  
 	CONF_SWAPSIZE=1024  
@@ -277,7 +269,7 @@ application.
         pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium mingw-w64-x86_64-hidapi
 
     To build for 32-bit Windows:
- 
+
         pacman -S mingw-w64-i686-toolchain make mingw-w64-i686-cmake mingw-w64-i686-boost mingw-w64-i686-openssl mingw-w64-i686-zeromq mingw-w64-i686-libsodium mingw-w64-i686-hidapi
 
 * Open the MingW shell via `MinGW-w64-Win64 Shell` shortcut on 64-bit Windows
@@ -293,11 +285,11 @@ application.
 **Building**
 
 * Change to the cloned directory, run:
-	
+
         cd uplexa
 
 * If you would like a specific [version/tag](https://github.com/uPlexa/uplexa/tags), do a git checkout for that version. eg. 'v0.1.9.6'. If you dont care about the version and just want binaries from master, skip this step:
-	
+
         git checkout v0.1.9.6
 
 * If you are on a 64-bit system, run:
@@ -313,7 +305,7 @@ application.
 * **Optional**: to build Windows binaries suitable for debugging on a 64-bit system, run:
 
         make debug-static-win64
-	
+
 * **Optional**: to build Windows binaries suitable for debugging on a 32-bit system, run:
 
         make debug-static-win32
@@ -362,7 +354,7 @@ mkdir ~/boost
 cd ~/boost
 
 # Fetch boost source
-ftp -o boost_1_64_0.tar.bz2 https://netcologne.dl.sourceforge.net/project/boost/boost/1.64.0/boost_1_64_0.tar.bz2 
+ftp -o boost_1_64_0.tar.bz2 https://netcologne.dl.sourceforge.net/project/boost/boost/1.64.0/boost_1_64_0.tar.bz2
 
 # MUST output: (SHA256) boost_1_64_0.tar.bz2: OK
 echo "7bcc5caace97baa948931d712ea5f37038dbb1c5d89b43ad4def4ed7cb683332 boost_1_64_0.tar.bz2" | sha256 -c
@@ -503,7 +495,7 @@ You can also cross-compile binaries on linux for windows and macos with the depe
 * ```make HOST=arm-linux-gnueabihf``` for armv6 binaries. Requires: g++-arm-linux-gnueabihf
 
 The required packages are the names for each toolchain on apt. Depending on your distro, they may have different names.
-Then go back to the source dir and type for example for windows 64bit: 
+Then go back to the source dir and type for example for windows 64bit:
 
 * ```cmake -DCMAKE_TOOLCHAIN_FILE=`pwd`/contrib/depends/x86_64-w64-mingw32```
 
@@ -594,7 +586,7 @@ Run the build.
 Once it stalls, enter the following command:
 
 ```
-gdb /path/to/uplexad `pidof uplexad` 
+gdb /path/to/uplexad `pidof uplexad`
 ```
 
 Type `thread apply all bt` within gdb in order to obtain the stack trace

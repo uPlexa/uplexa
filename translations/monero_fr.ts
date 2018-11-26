@@ -3527,8 +3527,8 @@ subaddress-lookahead &lt;major&gt;:&lt;minor&gt;
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="5799"/>
-        <source>Donating %s %s to The Monero Project (donate.getmonero.org or %s).</source>
-        <translation>Don de %s %s à The Monero Project (donate.getmonero.org ou %s).</translation>
+        <source>Donating %s %s to uPlexa Team (donate.getmonero.org or %s).</source>
+        <translation>Don de %s %s à uPlexa Team (donate.getmonero.org ou %s).</translation>
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="5971"/>

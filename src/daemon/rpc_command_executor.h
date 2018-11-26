@@ -6,7 +6,7 @@
 
 */
 
-// Copyright (c) 2014-2018, The Monero Project
+// Copyright (c) 2014-2018, uPlexa Team
 // 
 // All rights reserved.
 // 

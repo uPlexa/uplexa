@@ -3131,10 +3131,10 @@ bool Blockchain::check_block_timestamp(std::vector<uint64_t>& timestamps, const 
 bool Blockchain::check_block_timestamp(const block& b, uint64_t& median_ts) const
 {
   LOG_PRINT_L3("Blockchain::" << __func__);
-  if(b.timestamp > get_adjusted_time() + CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT)
+  //if(b.timestamp > get_adjusted_time() + CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT)
   uint64_t cryptonote_block_future_time_limit = get_current_hard_fork_version() < 10 ? CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT : CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V2;
-size_t blockchain_timestamp_check_window = get_current_hard_fork_version() < 10 ? BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW : BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V2;
-if(b.timestamp > get_adjusted_time() + cryptonote_block_future_time_limit)
+  size_t blockchain_timestamp_check_window = get_current_hard_fork_version() < 10 ? BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW : BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V2;
+  if(b.timestamp > get_adjusted_time() + cryptonote_block_future_time_limit)
   {
     //MERROR_VER("Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time + 2 hours");
     MERROR_VER("Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time + " << (get_current_hard_fork_version() < 10 ? "2 hours" : "30 minutes"));

@@ -15,7 +15,7 @@ print("maybe someone smart can replace the sed with perl..")
 a = ""
 
 license = textwrap.dedent("""\
-    // Copyright (c) 2014-2018, uPlexa Team
+    // Copyright (c) 2018, uPlexa Team
     // 
     // All rights reserved.
     // 

@@ -1,6 +1,6 @@
 // Word list originally created as part of the Electrum project, Copyright (C) 2014 Thomas Voegtlin
 // 
-// Copyright (c) 2014-2018, uPlexa Team
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 

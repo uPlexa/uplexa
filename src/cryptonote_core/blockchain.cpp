@@ -1078,15 +1078,9 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   size_t target = get_ideal_hard_fork_version(bei.height) < 10 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
 
   // calculate the difficulty target for the block and return it
-  /*return next_difficulty(timestamps, cumulative_difficulties, target);
   return get_current_hard_fork_version() < 10 ?  next_difficulty(timestamps, cumulative_difficulties, target) : next_difficulty_v2(timestamps, cumulative_difficulties, target);
-  */
 
-  if (version < 10) {
-    return next_difficulty(timestamps, cumulative_difficulties, target);
-  } else {
-    return next_difficulty_v2(timestamps, cumulative_difficulties, target);
-  }
+
 
 }
 //------------------------------------------------------------------

@@ -1,6 +1,6 @@
 // Word list created by Monero contributor Shrikez
 // 
-// Copyright (c) 2014-2018, uPlexa Team
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 

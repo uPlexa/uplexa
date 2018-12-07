@@ -2,7 +2,7 @@
 /// @author rfree (current maintainer in monero.cc project)
 /// @brief base for connection, contains e.g. the ratelimit hooks
 
-// Copyright (c) 2014-2018, uPlexa Team
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 

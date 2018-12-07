@@ -1,6 +1,6 @@
 # uPlexa
 
-Copyright (c) 2014-2018 uPlexa.   
+Copyright (c) 2018 uPlexa.   
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Development resources

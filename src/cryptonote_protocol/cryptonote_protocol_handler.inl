@@ -485,7 +485,7 @@ namespace cryptonote
           }
 
           // hijacking m_requested objects in connection context to patch up
-          // a possible DOS vector pointed out by @monero-moo where peers keep
+          // a possible DOS vector pointed out by @uplexa-moo where peers keep
           // sending (0...n-1) transactions.
           // If requested objects is not empty, then we must have asked for
           // some missing transacionts, make sure that they're all there.
@@ -529,7 +529,7 @@ namespace cryptonote
             // future todo:
             // tx should only not be added to pool if verification failed, but
             // maybe in the future could not be added for other reasons
-            // according to monero-moo so keep track of these separately ..
+            // according to uplexa-moo so keep track of these separately ..
             //
           }
         }
@@ -1592,7 +1592,7 @@ skip:
     if(m_synchronized.compare_exchange_strong(val_expected, true))
     {
       MGINFO_YELLOW(ENDL << "**********************************************************************" << ENDL
-        << "You are now synchronized with the network. You may now start monero-wallet-cli." << ENDL
+        << "You are now synchronized with the network. You may now start uplexa-wallet-cli." << ENDL
         << ENDL
         << "Use the \"help\" command to see the list of available commands." << ENDL
         << "**********************************************************************");

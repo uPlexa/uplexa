@@ -130,7 +130,7 @@ invokes cmake commands as needed.
 
         cd uplexa
         git checkout v0.2.0.0
-        make
+        make release
 
     *Optional*: If your machine has several cores and enough memory, enable
     parallel build by running `make -j<number of threads>` instead of `make`. For

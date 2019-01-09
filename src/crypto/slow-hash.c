@@ -1338,7 +1338,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
 
 
       // Iteration 1
-      j = state_index(a, (light?2:1)); //changeThis
+      j = state_index(a, 2);
       p = &long_state[j]; //changeThis?? (light?2:1)
       aesb_single_round(p, p, a);
       copy_block(c1, p);
@@ -1348,7 +1348,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
       VARIANT1_1(p);
 
       // Iteration 2
-      j = state_index(c1, (light?2:1)); //changeThis
+      j = state_index(c1, 2); //changeThis
       p = &long_state[j];
       copy_block(c, p);
 

@@ -882,6 +882,16 @@ union cn_slow_hash_state
 #include <arm_neon.h>
 
 #define TOTALBLOCKS (MEMORY / AES_BLOCK_SIZE)
+/*
+#define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)
+#define __mul() __asm__("mul %0, %1, %2\n\t" : "=r"(lo) : "r"(c[0]), "r"(b[0]) ); \
+  __asm__("umulh %0, %1, %2\n\t" : "=r"(hi) : "r"(c[0]), "r"(b[0]) );
+
+#define pre_aes() \
+  j = state_index(a,(light?2:1)); \
+  _c = vld1q_u8(&hp_state[j]); \
+  _a = vld1q_u8((const uint8_t *)a); \
+*/
 
 #define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)
 #define __mul() __asm__("mul %0, %1, %2\n\t" : "=r"(lo) : "r"(c[0]), "r"(b[0]) ); \
@@ -912,7 +922,21 @@ union cn_slow_hash_state
   _b1 = _b; \
   _b = _c; \
 
-
+/*  vst1q_u8((uint8_t *)c, _c); \
+  _b = veorq_u8(_b, _c); \
+  vst1q_u8(&hp_state[j], _b); \
+  VARIANT1_1(&hp_state[j]); \
+  j = state_index(c,(light?2:1)); \
+  p = U64(&hp_state[j]); \
+  b[0] = p[0]; b[1] = p[1]; \
+  __mul(); \
+  a[0] += hi; a[1] += lo; \
+  p = U64(&hp_state[j]); \
+  p[0] = a[0];  p[1] = a[1]; \
+  a[0] ^= b[0]; a[1] ^= b[1]; \
+  VARIANT1_2(p + 1); \
+  _b = _c; \
+*/
 /* Note: this was based on a standard 256bit key schedule but
  * it's been shortened since Cryptonight doesn't use the full
  * key schedule. Don't try to use this for vanilla AES.

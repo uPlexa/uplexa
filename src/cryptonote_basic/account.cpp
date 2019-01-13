@@ -155,9 +155,9 @@ DISABLE_VS_WARNINGS(4244 4345)
     generate_keys(m_keys.m_account_address.m_view_public_key, m_keys.m_view_secret_key, second, two_random ? false : true);
 
     struct tm timestamp = {0};
-    timestamp.tm_year = 2014 - 1900;  // year 2014
-    timestamp.tm_mon = 6 - 1;  // month june
-    timestamp.tm_mday = 8;  // 8th of june
+    timestamp.tm_year = 2018 - 1900;  // year 2018
+    timestamp.tm_mon = 10 - 1;  // month october
+    timestamp.tm_mday = 23;  // 23rd of october
     timestamp.tm_hour = 0;
     timestamp.tm_min = 0;
     timestamp.tm_sec = 0;

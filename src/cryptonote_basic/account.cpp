@@ -182,9 +182,9 @@ DISABLE_VS_WARNINGS(4244 4345)
     m_keys.m_view_secret_key = viewkey;
 
     struct tm timestamp = {0};
-    timestamp.tm_year = 2014 - 1900;  // year 2014
-    timestamp.tm_mon = 4 - 1;  // month april
-    timestamp.tm_mday = 15;  // 15th of april
+    timestamp.tm_year = 2018 - 1900;  // year 2018
+    timestamp.tm_mon = 10 - 1;  // month october
+    timestamp.tm_mday = 23;  // 23rd of october
     timestamp.tm_hour = 0;
     timestamp.tm_min = 0;
     timestamp.tm_sec = 0;
@@ -211,9 +211,9 @@ DISABLE_VS_WARNINGS(4244 4345)
     hwdev.get_public_address(m_keys.m_account_address);
     hwdev.get_secret_keys(m_keys.m_view_secret_key, m_keys.m_spend_secret_key);
     struct tm timestamp = {0};
-    timestamp.tm_year = 2014 - 1900;  // year 2014
-    timestamp.tm_mon = 4 - 1;  // month april
-    timestamp.tm_mday = 15;  // 15th of april
+    timestamp.tm_year = 2018 - 1900;  // year 2018
+    timestamp.tm_mon = 10 - 1;  // month october
+    timestamp.tm_mday = 23;  // 23rd of october
     timestamp.tm_hour = 0;
     timestamp.tm_min = 0;
     timestamp.tm_sec = 0;

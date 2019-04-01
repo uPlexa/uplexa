@@ -891,7 +891,7 @@ union cn_slow_hash_state
   _c = vld1q_u8(&hp_state[j]); \
   _a = vld1q_u8((const uint8_t *)a); \
 
-#define post_aes() \ //Last change 4:17pm
+#define post_aes() \
   VARIANT2_SHUFFLE_ADD_NEON(hp_state, j); \
   vst1q_u8((uint8_t *)c, _c); \
   vst1q_u8(&hp_state[j], veorq_u8(_b, _c)); \
@@ -1333,13 +1333,13 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
 
     for(i = 0; i < ITER() / 2; i++)
     {
-      #define MASK(div) ((uint32_t)(((MEMORY / AES_BLOCK_SIZE / (div) - 1) << 4))
+      #define MASK(div) ((uint32_t)(((MEMORY / AES_BLOCK_SIZE) / (div) - 1) << 4))
       #define state_index(x,div) ((*(uint32_t *) x) & MASK(div))
 
 
       // Iteration 1
-      j = state_index(a, (light?2:1)); //changeThis
-      p = &long_state[j]; //changeThis?? (light?2:1)
+      j = state_index(a, (light?2:1));
+      p = &long_state[j];
       aesb_single_round(p, p, a);
       copy_block(c1, p);
 
@@ -1348,7 +1348,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
       VARIANT1_1(p);
 
       // Iteration 2
-      j = state_index(c1, (light?2:1)); //changeThis
+      j = state_index(c1, (light?2:1)); 
       p = &long_state[j];
       copy_block(c, p);
 

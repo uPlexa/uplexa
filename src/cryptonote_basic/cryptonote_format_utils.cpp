@@ -1055,7 +1055,8 @@ namespace cryptonote
     // Opting out of CNv2 PoW Change due to decreased efficiency on lower-end CPU devices.
     //const int cn_miner_variant = 1;
     const int cn_miner_variant = b.major_version >= 11 ? 2 : 1;
-    crypto::cn_slow_hash(bd.data(), bd.size(), res, height >= HARDFORK_1_HEIGHT || b.major_version >= 2, cn_miner_variant);
+    const int upxtwo = b.major_version >= 11 ? 2 : b.major_version >= 2;
+    crypto::cn_slow_hash(bd.data(), bd.size(), res, upxtwo, cn_miner_variant);
     return true;
   }
   //---------------------------------------------------------------

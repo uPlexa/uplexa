@@ -41,7 +41,8 @@
 #include "variant2_int_sqrt.h"
 
 #define MEMORY         (1 << 21) // 2MB scratchpad
-#define ITER() (variant >= 2 ? (1 << 15) : (1 << 18)) // 2^18 = 262,144, 2^15 = 32,768
+//#define ITER() (variant >= 2 ? (1 << 15) : (1 << 18)) // 2^18 = 262,144, 2^15 = 32,768
+#define ITER() (variant >= 2 ? (1 << 15) : (variant == 1 ? (1 << 18) : (1 << 20))) // 2^18 = 262,144, 2^15 = 32,768
 #define AES_BLOCK_SIZE  16
 #define AES_KEY_SIZE    32
 #define INIT_SIZE_BLK   8
@@ -275,7 +276,7 @@ extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *exp
 #endif
 
 #define pre_aes() \
-  j = state_index(a,(upxtwo?16:2)); \
+  j = state_index(a,(upxtwo>=2?16:(upxtwo==1?2:1))); \
   _c = _mm_load_si128(R128(&hp_state[j])); \
   _a = _mm_load_si128(R128(a)); \
 
@@ -293,7 +294,7 @@ extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *exp
   _mm_store_si128(R128(c), _c); \
   _mm_store_si128(R128(&hp_state[j]), _mm_xor_si128(_b, _c)); \
   VARIANT1_1(&hp_state[j]); \
-  j = state_index(c,(upxtwo?16:2)); \
+  j = state_index(c,(upxtwo>=2?16:(upxtwo==1?2:1))); \
   p = U64(&hp_state[j]); \
   b[0] = p[0]; b[1] = p[1]; \
   VARIANT2_INTEGER_MATH_SSE2(b, c); \
@@ -737,7 +738,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     if(useAes)
     {
         aes_expand_key(state.hs.b, expandedKey);
-        for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+        for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
         {
             aes_pseudo_round(text, text, expandedKey, INIT_SIZE_BLK);
             memcpy(&hp_state[i * INIT_SIZE_BYTE], text, INIT_SIZE_BYTE);
@@ -747,7 +748,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     {
         aes_ctx = (oaes_ctx *) oaes_alloc();
         oaes_key_import_data(aes_ctx, state.hs.b, AES_KEY_SIZE);
-        for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+        for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
         {
             for(j = 0; j < INIT_SIZE_BLK; j++)
                 aesb_pseudo_round(&text[AES_BLOCK_SIZE * j], &text[AES_BLOCK_SIZE * j], aes_ctx->key->exp_data);
@@ -797,7 +798,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     if(useAes)
     {
         aes_expand_key(&state.hs.b[32], expandedKey);
-        for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+        for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
         {
             // add the xor to the pseudo round
             aes_pseudo_round_xor(text, text, expandedKey, &hp_state[i * INIT_SIZE_BYTE], INIT_SIZE_BLK);
@@ -806,7 +807,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     else
     {
         oaes_key_import_data(aes_ctx, &state.hs.b[32], AES_KEY_SIZE);
-        for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+        for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
         {
             for(j = 0; j < INIT_SIZE_BLK; j++)
             {
@@ -887,7 +888,7 @@ union cn_slow_hash_state
   __asm__("umulh %0, %1, %2\n\t" : "=r"(hi) : "r"(c[0]), "r"(b[0]) );
 
 #define pre_aes() \
-  j = state_index(a,(upxtwo?16:2)); \
+  j = state_index(a,(upxtwo>=2?16:(upxtwo==1?2:1))); \
   _c = vld1q_u8(&hp_state[j]); \
   _a = vld1q_u8((const uint8_t *)a); \
 
@@ -896,7 +897,7 @@ union cn_slow_hash_state
   vst1q_u8((uint8_t *)c, _c); \
   vst1q_u8(&hp_state[j], veorq_u8(_b, _c)); \
   VARIANT1_1(&hp_state[j]); \
-  j = state_index(c,(upxtwo?16:2)); \
+  j = state_index(c,(upxtwo>=2?16:(upxtwo==1?2:1))); \
   p = U64(&hp_state[j]); \
   b[0] = p[0]; b[1] = p[1]; \
   VARIANT2_PORTABLE_INTEGER_MATH(b, c); \
@@ -1069,7 +1070,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
 #ifndef FORCE_USE_HEAP
     RDATA_ALIGN16 uint8_t hp_state[MEMORY];
 #else
-    uint8_t *hp_state = (uint8_t *)aligned_malloc(MEMORY,16); // (upxtwo?16:2) ??? changeThis
+    uint8_t *hp_state = (uint8_t *)aligned_malloc(MEMORY,16); // (upxtwo>=2?16:(upxtwo==1?2:1)) ??? changeThis
 #endif
 
     uint8_t text[INIT_SIZE_BYTE];
@@ -1105,7 +1106,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
      */
 
     aes_expand_key(state.hs.b, expandedKey);
-    for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+    for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
     {
         aes_pseudo_round(text, text, expandedKey, INIT_SIZE_BLK);
         memcpy(&hp_state[i * INIT_SIZE_BYTE], text, INIT_SIZE_BYTE);
@@ -1140,7 +1141,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     memcpy(text, state.init, INIT_SIZE_BYTE);
 
     aes_expand_key(&state.hs.b[32], expandedKey);
-    for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+    for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
     {
         // add the xor to the pseudo round
         aes_pseudo_round_xor(text, text, expandedKey, &hp_state[i * INIT_SIZE_BYTE], INIT_SIZE_BLK);
@@ -1319,7 +1320,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
 
     // use aligned data
     memcpy(expandedKey, aes_ctx->key->exp_data, aes_ctx->key->exp_data_len);
-    for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+    for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
     {
         for(j = 0; j < INIT_SIZE_BLK; j++)
             aesb_pseudo_round(&text[AES_BLOCK_SIZE * j], &text[AES_BLOCK_SIZE * j], expandedKey);
@@ -1338,7 +1339,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
 
 
       // Iteration 1
-      j = state_index(a, (upxtwo?16:2));
+      j = state_index(a, (upxtwo>=2?16:(upxtwo==1?2:1)));
       p = &long_state[j];
       aesb_single_round(p, p, a);
       copy_block(c1, p);
@@ -1348,7 +1349,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
       VARIANT1_1(p);
 
       // Iteration 2
-      j = state_index(c1, (upxtwo?16:2));
+      j = state_index(c1, (upxtwo>=2?16:(upxtwo==1?2:1)));
       p = &long_state[j];
       copy_block(c, p);
 
@@ -1371,7 +1372,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     memcpy(text, state.init, INIT_SIZE_BYTE);
     oaes_key_import_data(aes_ctx, &state.hs.b[32], AES_KEY_SIZE);
     memcpy(expandedKey, aes_ctx->key->exp_data, aes_ctx->key->exp_data_len);
-    for(i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++)
+    for(i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++)
     {
         for(j = 0; j < INIT_SIZE_BLK; j++)
         {
@@ -1510,7 +1511,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
   VARIANT2_PORTABLE_INIT();
 
   oaes_key_import_data(aes_ctx, aes_key, AES_KEY_SIZE);
-  for (i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++) {
+  for (i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++) {
     for (j = 0; j < INIT_SIZE_BLK; j++) {
       aesb_pseudo_round(&text[AES_BLOCK_SIZE * j], &text[AES_BLOCK_SIZE * j], aes_ctx->key->exp_data);
     }
@@ -1528,16 +1529,16 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
      * next address  <-+
      */
     /* Iteration 1 */
-    j = e2i(a, MEMORY / (upxtwo?16:2) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE;
+    j = e2i(a, MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE;
     copy_block(c1, &long_state[j]);
     aesb_single_round(c1, c1, a);
     VARIANT2_PORTABLE_SHUFFLE_ADD(long_state, j);
     copy_block(&long_state[j], c1);
     xor_blocks(&long_state[j], b);
-    assert(j == e2i(a, MEMORY / (upxtwo?16:2) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE);
+    assert(j == e2i(a, MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE);
     VARIANT1_1(&long_state[j]);
     /* Iteration 2 */
-    j = e2i(c1, MEMORY / (upxtwo?16:2) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE;
+    j = e2i(c1, MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE;
     copy_block(c2, &long_state[j]);
     VARIANT2_PORTABLE_INTEGER_MATH(c2, c1);
     mul(c1, c2, d);
@@ -1549,7 +1550,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
     xor_blocks(c1, c2);
     VARIANT1_2(c2 + 8);
     copy_block(&long_state[j], c2);
-    assert(j == e2i(a, MEMORY / (upxtwo?16:2) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE);
+    assert(j == e2i(a, MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE);
     if (variant >= 2) {
       copy_block(b + AES_BLOCK_SIZE, b);
     }
@@ -1559,7 +1560,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int upxtwo, int v
 
   memcpy(text, state.init, INIT_SIZE_BYTE);
   oaes_key_import_data(aes_ctx, &state.hs.b[32], AES_KEY_SIZE);
-  for (i = 0; i < MEMORY / (upxtwo?16:2) / INIT_SIZE_BYTE; i++) {
+  for (i = 0; i < MEMORY / (upxtwo>=2?16:(upxtwo==1?2:1)) / INIT_SIZE_BYTE; i++) {
     for (j = 0; j < INIT_SIZE_BLK; j++) {
       xor_blocks(&text[j * AES_BLOCK_SIZE], &long_state[i * INIT_SIZE_BYTE + j * AES_BLOCK_SIZE]);
       aesb_pseudo_round(&text[AES_BLOCK_SIZE * j], &text[AES_BLOCK_SIZE * j], aes_ctx->key->exp_data);

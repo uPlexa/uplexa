@@ -41,7 +41,8 @@
 #include "variant2_int_sqrt.h"
 
 #define MEMORY         (1 << 21) // 2MB scratchpad
-#define ITER() (variant >= 2 ? (1 << 15) : (1 << 18)) // 2^18 = 262,144, 2^15 = 32,768
+//#define ITER() (variant >= 2 ? (1 << 15) : (1 << 18)) // 2^18 = 262,144, 2^15 = 32,768
+#define ITER() (variant >= 2 ? (1 << 15) : (variant == 1 ? (1 << 18) : (1 << 20))) // 2^18 = 262,144, 2^15 = 32,768
 #define AES_BLOCK_SIZE  16
 #define AES_KEY_SIZE    32
 #define INIT_SIZE_BLK   8

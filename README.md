@@ -62,6 +62,8 @@ Dates are provided in the format YYYY-MM-DD.
 | ------------------------------ | -----------| ----------------- | ---------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
 | 2                        | 2018-10-23 | v9                | v0.1.9.0                 | v0.1.9.0                     | CryptoNight-UPX, BulletProof
 | 52279                        | 2018-11-25 | v10                | v0.2.0.0                 | v0.2.0.0                     | 120s block times, LWMA difficulty
+| 162,090			| 2019-04-29 | v11		| 
+v0.2.1.0	| v0.2.1.0	| ALGO: UPXTWO (Crazy fast)
 X's indicate that these details have not been determined as of commit date.
 
 ## Release staging schedule and protocol

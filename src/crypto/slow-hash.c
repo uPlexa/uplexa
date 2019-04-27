@@ -883,6 +883,8 @@ union cn_slow_hash_state
 
 #define TOTALBLOCKS (MEMORY / AES_BLOCK_SIZE)
 /*
+<<<<<<< HEAD
+=======
 #define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)
 #define __mul() __asm__("mul %0, %1, %2\n\t" : "=r"(lo) : "r"(c[0]), "r"(b[0]) ); \
   __asm__("umulh %0, %1, %2\n\t" : "=r"(hi) : "r"(c[0]), "r"(b[0]) );
@@ -893,6 +895,18 @@ union cn_slow_hash_state
   _a = vld1q_u8((const uint8_t *)a); \
 */
 
+>>>>>>> 69506b31293da1d8ba9cf2bd156cadf9520758c5
+#define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)
+#define __mul() __asm__("mul %0, %1, %2\n\t" : "=r"(lo) : "r"(c[0]), "r"(b[0]) ); \
+  __asm__("umulh %0, %1, %2\n\t" : "=r"(hi) : "r"(c[0]), "r"(b[0]) );
+
+#define pre_aes() \
+  j = state_index(a,(light?2:1)); \
+  _c = vld1q_u8(&hp_state[j]); \
+  _a = vld1q_u8((const uint8_t *)a); \
+*/
+
+<<<<<<< HEAD
 #define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)
 #define __mul() __asm__("mul %0, %1, %2\n\t" : "=r"(lo) : "r"(c[0]), "r"(b[0]) ); \
   __asm__("umulh %0, %1, %2\n\t" : "=r"(hi) : "r"(c[0]), "r"(b[0]) );
@@ -902,6 +916,8 @@ union cn_slow_hash_state
   _c = vld1q_u8(&hp_state[j]); \
   _a = vld1q_u8((const uint8_t *)a); \
 
+=======
+>>>>>>> 69506b31293da1d8ba9cf2bd156cadf9520758c5
 #define post_aes() \
   VARIANT2_SHUFFLE_ADD_NEON(hp_state, j); \
   vst1q_u8((uint8_t *)c, _c); \

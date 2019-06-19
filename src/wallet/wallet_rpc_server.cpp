@@ -1372,7 +1372,8 @@ namespace tools
 
     try
     {
-      m_wallet->store();
+        if (!wallet_file.empty())
+          m_wallet->store();
     }
     catch (const std::exception& e)
     {
@@ -2646,7 +2647,7 @@ namespace tools
       er.message = "Invalid filename";
       return false;
     }
-    std::string wallet_file = m_wallet_dir + "/" + req.filename;
+    std::string wallet_file = req.filename.empty() ? "" : (m_wallet_dir + "/" + req.filename);
     {
       std::vector<std::string> languages;
       crypto::ElectrumWords::get_language_list(languages);

@@ -62,6 +62,7 @@ Dates are provided in the format YYYY-MM-DD.
 | ------------------------------ | -----------| ----------------- | ---------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
 | 2                        | 2018-10-23 | v9                | v0.1.9.0                 | v0.1.9.0                     | CryptoNight-UPX, BulletProof
 | 52279                        | 2018-11-25 | v10                | v0.2.0.0                 | v0.2.0.0                     | 120s block times, LWMA difficulty
+| 162,090			| 2019-04-29 | v11		| v0.2.1.0		| v0.2.1.0			| ALGO: UPXTWO (Crazy fast)
 X's indicate that these details have not been determined as of commit date.
 
 ## Release staging schedule and protocol
@@ -129,7 +130,7 @@ invokes cmake commands as needed.
 * Change to the root of the source code directory, change to the most recent release branch, and build:
 
         cd uplexa
-        git checkout v0.2.0.0
+        git checkout master
         make release
 
     *Optional*: If your machine has several cores and enough memory, enable
@@ -191,7 +192,7 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 ```
         git clone https://github.com/uPlexa/uplexa.git
 	cd uplexa
-	git checkout tags/v0.2.0.0
+	git checkout tags/v0.2.1.0
 ```
 * Build:
 ```
@@ -288,9 +289,9 @@ application.
 
         cd uplexa
 
-* If you would like a specific [version/tag](https://github.com/uPlexa/uplexa/tags), do a git checkout for that version. eg. 'v0.2.0.0'. If you dont care about the version and just want binaries from master, skip this step:
+* If you would like a specific [version/tag](https://github.com/uPlexa/uplexa/tags), do a git checkout for that version. eg. 'v0.2.1.0'. If you dont care about the version and just want binaries from master, skip this step:
 
-        git checkout v0.2.0.0
+        git checkout master
 
 * If you are on a 64-bit system, run:
 

@@ -1,21 +1,21 @@
 // Copyright (c) 2017-2018, uPlexa Team
-//
+// 
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-//
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -27,8 +27,9 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#if defined(HAVE_HIDAPI)
+#if defined(HAVE_HIDAPI) 
 
+#include <boost/optional/optional.hpp>
 #include <hidapi/hidapi.h>
 #include "device_io.hpp"
 
@@ -50,23 +51,22 @@ namespace hw {
 
 
     struct hid_conn_params {
-      unsigned int vid;
-      unsigned int pid;
+      unsigned int vid; 
+      unsigned int pid; 
       int interface_number;
       unsigned short usage_page;
-      bool interface_OR_page ;
     };
-
+    
 
     class device_io_hid: device_io {
-
+      
 
     private:
-
+     
 
       unsigned short channel;
       unsigned char  tag;
-      unsigned int   packet_size;
+      unsigned int   packet_size; 
       unsigned int   timeout;
 
       unsigned int   usb_vid;
@@ -81,13 +81,11 @@ namespace hw {
 
       unsigned int wrapCommand(const unsigned char *command, size_t command_len, unsigned char *out, size_t out_len);
       unsigned int unwrapReponse(const unsigned char *data, size_t data_len, unsigned char *out, size_t out_len);
-
-
+ 
+      hid_device_info *find_device(hid_device_info *devices_list, boost::optional<int> interface_number, boost::optional<unsigned short> usage_page);
+ 
     public:
       bool hid_verbose = false;
-
-      static const unsigned int  OR_SELECT = 1;
-      static const unsigned int  AND_SELECT = 2;
 
       static const unsigned short DEFAULT_CHANNEL     = 0x0001;
       static const unsigned char  DEFAULT_TAG         = 0x01;
@@ -98,15 +96,16 @@ namespace hw {
       device_io_hid();
       ~device_io_hid() {};
 
-      void init();
+      void init();  
       void connect(void *params);
-      void connect(unsigned int vid, unsigned  int pid, int interface_number, unsigned short usage_page, bool interface_OR_page );
+      void connect(const std::vector<hid_conn_params> &conn);
+      hid_device  *connect(unsigned int vid, unsigned  int pid, boost::optional<int> interface_number, boost::optional<unsigned short> usage_page);
       bool connected() const;
-      int  exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
+      int  exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input);
       void disconnect();
       void release();
     };
   };
 };
 
-#endif //#if defined(HAVE_HIDAPI)
+#endif //#if defined(HAVE_HIDAPI) 

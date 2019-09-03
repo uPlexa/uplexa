@@ -1,6 +1,21 @@
+// Copyright (c) 2017-2018, uPlexa Team
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -11,24 +26,26 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-#if defined(HAVE_HIDAPI)
+#if defined(HAVE_HIDAPI) 
 
+#include <boost/scope_exit.hpp>
 #include "log.hpp"
 #include "device_io_hid.hpp"
 
 namespace hw {
   namespace io {
-
+ 
     #undef MONERO_DEFAULT_LOG_CATEGORY
     #define MONERO_DEFAULT_LOG_CATEGORY "device.io"
-
-    #define ASSERT_X(exp,msg)    CHECK_AND_ASSERT_THROW_MES(exp, msg);
+ 
+    #define ASSERT_X(exp,msg)    CHECK_AND_ASSERT_THROW_MES(exp, msg); 
 
     #define MAX_BLOCK  64
-
+    
     static std::string safe_hid_error(hid_device *hwdev) {
       if (hwdev) {
-        return  std::string((char*)hid_error(hwdev));
+        const char* error_str = (const char*)hid_error(hwdev);
+        return  std::string(error_str == nullptr ? "Unknown error" : error_str);
       }
       return std::string("NULL device");
     }
@@ -40,10 +57,10 @@ namespace hw {
       return std::string("NULL path");
     }
 
-    device_io_hid::device_io_hid(unsigned short c, unsigned char t, unsigned int ps, unsigned int to) :
-      channel(c),
-      tag(t),
-      packet_size(ps),
+    device_io_hid::device_io_hid(unsigned short c, unsigned char t, unsigned int ps, unsigned int to) : 
+      channel(c), 
+      tag(t), 
+      packet_size(ps), 
       timeout(to),
       usb_vid(0),
       usb_pid(0),
@@ -60,7 +77,7 @@ namespace hw {
         MDEBUG( "HID " << (read?"<":">") <<" : "<<strbuffer);
       }
     }
-
+ 
     void device_io_hid::init() {
       int r;
       r = hid_init();
@@ -69,35 +86,77 @@ namespace hw {
 
     void device_io_hid::connect(void *params) {
       hid_conn_params *p = (struct hid_conn_params*)params;
-      this->connect(p->vid, p->pid, p->interface_number, p->usage_page, p->interface_OR_page);
+      if (!this->connect(p->vid, p->pid, p->interface_number, p->usage_page)) {
+        ASSERT_X(false, "No device found");
+      }
     }
 
-    void device_io_hid::connect(unsigned int vid, unsigned  int pid, int interface_number, unsigned short usage_page, bool interface_OR_page ) {
-      hid_device_info *hwdev_info, *hwdev_info_list;
+    void device_io_hid::connect(const std::vector<hid_conn_params> &hcpV) {
+      for (auto p: hcpV) {
+        if (this->connect(p.vid, p.pid, p.interface_number, p.usage_page)) {
+          return;
+        }        
+      }
+      ASSERT_X(false, "No device found");
+    }
+
+    hid_device_info *device_io_hid::find_device(hid_device_info *devices_list, boost::optional<int> interface_number, boost::optional<unsigned short> usage_page) {
+      bool select_any = !interface_number && !usage_page;
+
+      MDEBUG( "Looking for " <<
+              (select_any ? "any HID Device" : "HID Device with") <<
+              (interface_number ? (" interface_number " + std::to_string(interface_number.value())) : "") <<
+              ((interface_number && usage_page) ? " or" : "") <<
+              (usage_page ? (" usage_page " + std::to_string(usage_page.value())) : ""));
+
+      hid_device_info *result = nullptr;
+      for (; devices_list != nullptr; devices_list = devices_list->next) {
+        BOOST_SCOPE_EXIT(&devices_list, &result) {
+          MDEBUG( (result == devices_list ? "SELECTED" : "SKIPPED ") <<
+                  " HID Device" <<
+                  " path " << safe_hid_path(devices_list) <<
+                  " interface_number " << devices_list->interface_number <<
+                  " usage_page " << devices_list->usage_page);
+        }
+        BOOST_SCOPE_EXIT_END
+
+        if (result != nullptr) {
+          continue;
+        }
+
+        if (select_any) {
+          result = devices_list;
+        } else if (interface_number && devices_list->interface_number == interface_number.value()) {
+          result = devices_list;
+        } else if (usage_page && devices_list->usage_page == usage_page.value()) {
+          result = devices_list;
+        }
+      }
+
+      return result;
+    }
+
+    hid_device  *device_io_hid::connect(unsigned int vid, unsigned  int pid, boost::optional<int> interface_number, boost::optional<unsigned short> usage_page) {
+      hid_device_info *hwdev_info_list;
       hid_device      *hwdev;
 
       this->disconnect();
 
       hwdev_info_list = hid_enumerate(vid, pid);
-      ASSERT_X(hwdev_info_list, "Unable to enumerate device "+std::to_string(vid)+":"+std::to_string(vid)+  ": "+ safe_hid_error(this->usb_device));
+      if (!hwdev_info_list) {
+        MDEBUG("Unable to enumerate device "+std::to_string(vid)+":"+std::to_string(vid)+  ": "+ safe_hid_error(this->usb_device));
+        return NULL;
+      }
       hwdev = NULL;
-      hwdev_info = hwdev_info_list;
-      while (hwdev_info) {
-        if ((interface_OR_page && ((hwdev_info->usage_page == usage_page) || (hwdev_info->interface_number == interface_number))) ||
-                                  ((hwdev_info->usage_page == usage_page) && (hwdev_info->interface_number == interface_number))) {
-          MDEBUG("HID Device found: " << safe_hid_path(hwdev_info));
-          hwdev = hid_open_path(hwdev_info->path);
-          break;
-        } else {
-          MDEBUG("HID Device discard: " << safe_hid_path(hwdev_info) << "("+std::to_string(hwdev_info->usage_page) << "," << std::to_string(hwdev_info->interface_number) << ")");
-        }
-        hwdev_info = hwdev_info->next;
+      if (hid_device_info *device = find_device(hwdev_info_list, interface_number, usage_page)) {
+        hwdev = hid_open_path(device->path);
       }
       hid_free_enumeration(hwdev_info_list);
       ASSERT_X(hwdev, "Unable to open device "+std::to_string(pid)+":"+std::to_string(vid));
       this->usb_vid = vid;
       this->usb_pid = pid;
       this->usb_device = hwdev;
+      return hwdev;
     }
 
 
@@ -105,7 +164,7 @@ namespace hw {
       return this->usb_device != NULL;
     }
 
-    int device_io_hid::exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)  {
+    int device_io_hid::exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input)  {
       unsigned char buffer[400];
       unsigned char padding_buffer[MAX_BLOCK+1];
       unsigned int  result;
@@ -134,10 +193,14 @@ namespace hw {
 
       //get first response
       memset(buffer, 0, sizeof(buffer));
-      hid_ret = hid_read_timeout(this->usb_device, buffer, MAX_BLOCK, this->timeout);
+      if (!user_input) {
+        hid_ret = hid_read_timeout(this->usb_device, buffer, MAX_BLOCK, this->timeout);
+      } else {
+        hid_ret = hid_read(this->usb_device, buffer, MAX_BLOCK);
+      }
       ASSERT_X(hid_ret>=0, "Unable to read hidapi response. Error "+std::to_string(result)+": "+ safe_hid_error(this->usb_device));
       result = (unsigned int)hid_ret;
-      io_hid_log(1, buffer, result);
+      io_hid_log(1, buffer, result); 
       offset = MAX_BLOCK;
       //parse first response and get others if any
       for (;;) {
@@ -150,7 +213,7 @@ namespace hw {
         result = (unsigned int)hid_ret;
         io_hid_log(1, buffer + offset, result);
         offset += MAX_BLOCK;
-      }
+      }      
       return result;
     }
 
@@ -229,7 +292,7 @@ namespace hw {
       unsigned int val;
 
       //end?
-      if ((data == NULL) || (data_len < 7 + 5)) {
+      if ((data == NULL) || (data_len < 7 + 5)) { 
         return 0;
       }
 
@@ -239,7 +302,7 @@ namespace hw {
       ASSERT_X(val == this->channel, "Wrong Channel");
       val =  data[offset];
       offset++;
-      ASSERT_X(val == this->tag, "Wrong TAG");
+      ASSERT_X(val == this->tag, "Wrong TAG");      
       val = (data[offset]<<8) + data[offset+1];
       offset += 2;
       ASSERT_X(val == sequence_idx, "Wrong sequence_idx");
@@ -265,7 +328,7 @@ namespace hw {
         ASSERT_X(val == this->channel, "Wrong Channel");
         val =  data[offset];
         offset++;
-        ASSERT_X(val == this->tag, "Wrong TAG");
+        ASSERT_X(val == this->tag, "Wrong TAG");      
         val = (data[offset]<<8) + data[offset+1];
         offset += 2;
         ASSERT_X(val == sequence_idx, "Wrong sequence_idx");
@@ -285,4 +348,4 @@ namespace hw {
   }
 }
 
-#endif //#if defined(HAVE_HIDAPI)
+#endif //#if defined(HAVE_HIDAPI) 

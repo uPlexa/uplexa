@@ -34,7 +34,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <memory>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <boost/shared_ptr.hpp>
@@ -89,11 +88,22 @@ namespace crypto {
     return &reinterpret_cast<const unsigned char &>(scalar);
   }
 
-  void generate_random_bytes_thread_safe(size_t N, uint8_t *bytes)
+  boost::mutex &get_random_lock()
   {
     static boost::mutex random_lock;
-    boost::lock_guard<boost::mutex> lock(random_lock);
+    return random_lock;
+  }
+
+  void generate_random_bytes_thread_safe(size_t N, uint8_t *bytes)
+  {
+    boost::lock_guard<boost::mutex> lock(get_random_lock());
     generate_random_bytes_not_thread_safe(N, bytes);
+  }
+
+  void add_extra_entropy_thread_safe(const void *ptr, size_t bytes)
+  {
+    boost::lock_guard<boost::mutex> lock(get_random_lock());
+    add_extra_entropy_not_thread_safe(ptr, bytes);
   }
 
   static inline bool less32(const unsigned char *k0, const unsigned char *k1)
@@ -276,8 +286,6 @@ namespace crypto {
     buf.key = pub;
   try_again:
     random_scalar(k);
-    if (((const uint32_t*)(&k))[7] == 0) // we don't want tiny numbers here
-      goto try_again;
     ge_scalarmult_base(&tmp3, &k);
     ge_p3_tobytes(&buf.comm, &tmp3);
     hash_to_scalar(&buf, sizeof(s_comm), sig.c);

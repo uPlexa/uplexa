@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2017, uPlexa Team
 #
 # All rights reserved.
 #
@@ -44,7 +44,6 @@ set(device_headers
   device.hpp
   device_io.hpp
   device_default.hpp
-  device_cold.hpp
   log.hpp
  )
 
@@ -58,6 +57,12 @@ endif()
 
 set(device_private_headers)
 
+
+if(PER_BLOCK_CHECKPOINT)
+  set(Blocks "blocks")
+else()
+  set(Blocks "")
+endif()
 
 monero_private_headers(device
   ${device_private_headers})
@@ -73,8 +78,6 @@ target_link_libraries(device
     cncrypto
     ringct_basic
     ${OPENSSL_CRYPTO_LIBRARIES}
-    ${Boost_SERIALIZATION_LIBRARY}
   PRIVATE
-    version
     ${Blocks}
     ${EXTRA_LIBRARIES})

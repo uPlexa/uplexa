@@ -1,21 +1,21 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, uPlexa Team
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <unistd.h>
@@ -58,7 +58,6 @@
 #include "include_base_utils.h"
 #include "file_io_utils.h"
 #include "wipeable_string.h"
-#include "misc_os_dependent.h"
 using namespace epee;
 
 #include "crypto/crypto.h"
@@ -69,13 +68,10 @@ using namespace epee;
 #include "net/http_client.h"                        // epee::net_utils::...
 
 #ifdef WIN32
-#ifndef STRSAFE_NO_DEPRECATE
-#define STRSAFE_NO_DEPRECATE
-#endif
   #include <windows.h>
   #include <shlobj.h>
   #include <strsafe.h>
-#else 
+#else
   #include <sys/file.h>
   #include <sys/utsname.h>
   #include <sys/stat.h>
@@ -83,34 +79,7 @@ using namespace epee;
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
-#include <boost/format.hpp>
 #include <openssl/sha.h>
-
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "util"
-
-namespace
-{
-
-#ifndef _WIN32
-static int flock_exnb(int fd)
-{
-  struct flock fl;
-  int ret;
-
-  memset(&fl, 0, sizeof(fl));
-  fl.l_type = F_WRLCK;
-  fl.l_whence = SEEK_SET;
-  fl.l_start = 0;
-  fl.l_len = 0;
-  ret = fcntl(fd, F_SETLK, &fl);
-  if (ret < 0)
-    MERROR("Error locking fd " << fd << ": " << errno << " (" << strerror(errno) << ")");
-  return ret;
-}
-#endif
-
-}
 
 namespace tools
 {
@@ -212,7 +181,7 @@ namespace tools
         struct stat wstats = {};
         if (fstat(fdw, std::addressof(wstats)) == 0 &&
             rstats.st_dev == wstats.st_dev && rstats.st_ino == wstats.st_ino &&
-            flock_exnb(fdw) == 0 && ftruncate(fdw, 0) == 0)
+            flock(fdw, (LOCK_EX | LOCK_NB)) == 0 && ftruncate(fdw, 0) == 0)
         {
           std::FILE* file = fdopen(fdw, "w");
           if (file) return {file, std::move(name)};
@@ -265,10 +234,10 @@ namespace tools
       MERROR("Failed to open " << filename << ": " << std::error_code(GetLastError(), std::system_category()));
     }
 #else
-    m_fd = open(filename.c_str(), O_RDWR | O_CREAT | O_CLOEXEC, 0666);
+    m_fd = open(filename.c_str(), O_RDONLY | O_CREAT | O_CLOEXEC, 0666);
     if (m_fd != -1)
     {
-      if (flock_exnb(m_fd) == -1)
+      if (flock(m_fd, LOCK_EX | LOCK_NB) == -1)
       {
         MERROR("Failed to lock " << filename << ": " << std::strerror(errno));
         close(m_fd);
@@ -327,31 +296,22 @@ namespace tools
     // Call GetNativeSystemInfo if supported or GetSystemInfo otherwise.
 
     pGNSI = (PGNSI) GetProcAddress(
-      GetModuleHandle(TEXT("kernel32.dll")), 
+      GetModuleHandle(TEXT("kernel32.dll")),
       "GetNativeSystemInfo");
     if(NULL != pGNSI)
       pGNSI(&si);
     else GetSystemInfo(&si);
 
-    if ( VER_PLATFORM_WIN32_NT==osvi.dwPlatformId && 
+    if ( VER_PLATFORM_WIN32_NT==osvi.dwPlatformId &&
       osvi.dwMajorVersion > 4 )
     {
       StringCchCopy(pszOS, BUFSIZE, TEXT("Microsoft "));
 
       // Test for the specific product.
-      if ( osvi.dwMajorVersion == 10 )
-      {
-        if ( osvi.dwMinorVersion == 0 )
-        {
-          if( osvi.wProductType == VER_NT_WORKSTATION )
-            StringCchCat(pszOS, BUFSIZE, TEXT("Windows 10 "));
-          else StringCchCat(pszOS, BUFSIZE, TEXT("Windows Server 2016 " ));
-        }
-      }
 
       if ( osvi.dwMajorVersion == 6 )
       {
-        if ( osvi.dwMinorVersion == 0 )
+        if( osvi.dwMinorVersion == 0 )
         {
           if( osvi.wProductType == VER_NT_WORKSTATION )
             StringCchCat(pszOS, BUFSIZE, TEXT("Windows Vista "));
@@ -365,22 +325,8 @@ namespace tools
           else StringCchCat(pszOS, BUFSIZE, TEXT("Windows Server 2008 R2 " ));
         }
 
-        if ( osvi.dwMinorVersion == 2 )
-        {
-          if( osvi.wProductType == VER_NT_WORKSTATION )
-            StringCchCat(pszOS, BUFSIZE, TEXT("Windows 8 "));
-          else StringCchCat(pszOS, BUFSIZE, TEXT("Windows Server 2012 " ));
-        }
-
-        if ( osvi.dwMinorVersion == 3 )
-        {
-          if( osvi.wProductType == VER_NT_WORKSTATION )
-            StringCchCat(pszOS, BUFSIZE, TEXT("Windows 8.1 "));
-          else StringCchCat(pszOS, BUFSIZE, TEXT("Windows Server 2012 R2 " ));
-        }
-
         pGPI = (PGPI) GetProcAddress(
-          GetModuleHandle(TEXT("kernel32.dll")), 
+          GetModuleHandle(TEXT("kernel32.dll")),
           "GetProductInfo");
 
         pGPI( osvi.dwMajorVersion, osvi.dwMinorVersion, 0, 0, &dwType);
@@ -510,7 +456,7 @@ namespace tools
         {
           StringCchCat(pszOS, BUFSIZE, TEXT( "Professional" ));
         }
-        else 
+        else
         {
           if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
             StringCchCat(pszOS, BUFSIZE, TEXT( "Datacenter Server" ));
@@ -541,10 +487,10 @@ namespace tools
           StringCchCat(pszOS, BUFSIZE, TEXT(", 32-bit"));
       }
 
-      return pszOS; 
+      return pszOS;
     }
     else
-    {  
+    {
       printf( "This sample does not support this version of Windows.\n");
       return pszOS;
     }
@@ -595,7 +541,7 @@ std::string get_nix_version_display_string()
     return "";
   }
 #endif
-  
+
   std::string get_default_data_dir()
   {
     /* Please for the love of god refactor  the ifdefs out of this */
@@ -644,16 +590,16 @@ std::string get_nix_version_display_string()
     return res;
   }
 
-  std::error_code replace_file(const std::string& old_name, const std::string& new_name)
+  std::error_code replace_file(const std::string& replacement_name, const std::string& replaced_name)
   {
     int code;
 #if defined(WIN32)
     // Maximizing chances for success
     std::wstring wide_replacement_name;
-    try { wide_replacement_name = string_tools::utf8_to_utf16(old_name); }
+    try { wide_replacement_name = string_tools::utf8_to_utf16(replacement_name); }
     catch (...) { return std::error_code(GetLastError(), std::system_category()); }
     std::wstring wide_replaced_name;
-    try { wide_replaced_name = string_tools::utf8_to_utf16(new_name); }
+    try { wide_replaced_name = string_tools::utf8_to_utf16(replaced_name); }
     catch (...) { return std::error_code(GetLastError(), std::system_category()); }
 
     DWORD attributes = ::GetFileAttributesW(wide_replaced_name.c_str());
@@ -665,7 +611,7 @@ std::string get_nix_version_display_string()
     bool ok = 0 != ::MoveFileExW(wide_replacement_name.c_str(), wide_replaced_name.c_str(), MOVEFILE_REPLACE_EXISTING);
     code = ok ? 0 : static_cast<int>(::GetLastError());
 #else
-    bool ok = 0 == std::rename(old_name.c_str(), new_name.c_str());
+    bool ok = 0 == std::rename(replacement_name.c_str(), replaced_name.c_str());
     code = ok ? 0 : errno;
 #endif
     return std::error_code(code, std::system_category());
@@ -757,21 +703,6 @@ std::string get_nix_version_display_string()
     }
 #endif
     return true;
-  }
-
-  ssize_t get_lockable_memory()
-  {
-#ifdef __GLIBC__
-    struct rlimit rlim;
-    if (getrlimit(RLIMIT_MEMLOCK, &rlim) < 0)
-    {
-      MERROR("Failed to determine the lockable memory limit");
-      return -1;
-    }
-    return rlim.rlim_cur;
-#else
-    return -1;
-#endif
   }
 
   bool on_startup()
@@ -1009,7 +940,7 @@ std::string get_nix_version_display_string()
     }
     return newval;
   }
-  
+
 #ifdef _WIN32
   std::string input_line_win()
   {
@@ -1028,7 +959,7 @@ std::string get_nix_version_display_string()
 
     SetConsoleMode(hConIn, oldMode);
     CloseHandle(hConIn);
-  
+
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, buffer, -1, NULL, 0, NULL, NULL);
     std::string buf(size_needed, '\0');
     WideCharToMultiByte(CP_UTF8, 0, buffer, -1, &buf[0], size_needed, NULL, NULL);
@@ -1037,86 +968,23 @@ std::string get_nix_version_display_string()
   }
 #endif
 
-  void closefrom(int fd)
-  {
+void closefrom(int fd)
+{
 #if defined __FreeBSD__ || defined __OpenBSD__ || defined __NetBSD__ || defined __DragonFly__
-    ::closefrom(fd);
+  ::closefrom(fd);
 #else
 #if defined __GLIBC__
-    const int sc_open_max =  sysconf(_SC_OPEN_MAX);
-    const int MAX_FDS = std::min(65536, sc_open_max);
+  const int sc_open_max =  sysconf(_SC_OPEN_MAX);
+  const int MAX_FDS = std::min(65536, sc_open_max);
 #else
-    const int MAX_FDS = 65536;
+  const int MAX_FDS = 65536;
 #endif
-    while (fd < MAX_FDS)
-    {
-      close(fd);
-      ++fd;
-    }
+  while (fd < MAX_FDS)
+  {
+    close(fd);
+    ++fd;
+  }
 #endif
-  }
-
-  std::string get_human_readable_timestamp(uint64_t ts)
-  {
-    char buffer[64];
-    if (ts < 1234567890)
-      return "<unknown>";
-    time_t tt = ts;
-    struct tm tm;
-    misc_utils::get_gmt_time(tt, tm);
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &tm);
-    return std::string(buffer);
-  }
-
-  std::string get_human_readable_timespan(uint64_t seconds)
-  {
-    if (seconds < 60)
-      return std::to_string(seconds) + " seconds";
-    if (seconds < 3600)
-      return std::to_string((uint64_t)(seconds / 60)) + " minutes";
-    if (seconds < 3600 * 24)
-      return std::to_string((uint64_t)(seconds / 3600)) + " hours";
-    if (seconds < 3600 * 24 * 30.5)
-      return std::to_string((uint64_t)(seconds / (3600 * 24))) + " days";
-    if (seconds < 3600 * 24 * 365.25)
-      return std::to_string((uint64_t)(seconds / (3600 * 24 * 30.5))) + " months";
-    if (seconds < 3600 * 24 * 365.25 * 100)
-      return std::to_string((uint64_t)(seconds / (3600 * 24 * 30.5 * 365.25))) + " years";
-    return "a long time";
-  }
-
-  std::string get_human_readable_bytes(uint64_t bytes)
-  {
-    // Use 1024 for "kilo", 1024*1024 for "mega" and so on instead of the more modern and standard-conforming
-    // 1000, 1000*1000 and so on, to be consistent with other Monero code that also uses base 2 units
-    struct byte_map
-    {
-        const char* const format;
-        const std::uint64_t bytes;
-    };
-
-    static constexpr const byte_map sizes[] =
-    {
-        {"%.0f B", 1024},
-        {"%.2f KB", 1024 * 1024},
-        {"%.2f MB", std::uint64_t(1024) * 1024 * 1024},
-        {"%.2f GB", std::uint64_t(1024) * 1024 * 1024 * 1024},
-        {"%.2f TB", std::uint64_t(1024) * 1024 * 1024 * 1024 * 1024}
-    };
-
-    struct bytes_less
-    {
-        bool operator()(const byte_map& lhs, const byte_map& rhs) const noexcept
-        {
-            return lhs.bytes < rhs.bytes;
-        }
-    };
-
-    const auto size = std::upper_bound(
-        std::begin(sizes), std::end(sizes) - 1, byte_map{"", bytes}, bytes_less{}
-    );
-    const std::uint64_t divisor = size->bytes / 1024;
-    return (boost::format(size->format) % (double(bytes) / divisor)).str();
-  }
+}
 
 }

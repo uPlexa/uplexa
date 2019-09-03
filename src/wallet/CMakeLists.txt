@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, uPlexa Team
 #
 # All rights reserved.
 #
@@ -34,10 +34,7 @@ set(wallet_sources
   wallet2.cpp
   wallet_args.cpp
   ringdb.cpp
-  node_rpc_proxy.cpp
-  message_store.cpp
-  message_transporter.cpp
-)
+  node_rpc_proxy.cpp)
 
 set(wallet_private_headers
   wallet2.h
@@ -47,9 +44,7 @@ set(wallet_private_headers
   wallet_rpc_server_commands_defs.h
   wallet_rpc_server_error_codes.h
   ringdb.h
-  node_rpc_proxy.h
-  message_store.h
-  message_transporter.h)
+  node_rpc_proxy.h)
 
 monero_private_headers(wallet
   ${wallet_private_headers})
@@ -62,8 +57,6 @@ target_link_libraries(wallet
     common
     cryptonote_core
     mnemonics
-    device_trezor
-    net
     ${LMDB_LIBRARY}
     ${Boost_CHRONO_LIBRARY}
     ${Boost_SERIALIZATION_LIBRARY}
@@ -107,7 +100,7 @@ target_link_libraries(wallet_rpc_server
     ${EXTRA_LIBRARIES})
 set_property(TARGET wallet_rpc_server
   PROPERTY
-    OUTPUT_NAME "monero-wallet-rpc")
+    OUTPUT_NAME "uplexa-wallet-rpc")
 install(TARGETS wallet_rpc_server DESTINATION bin)
 
 
@@ -126,9 +119,7 @@ if (BUILD_GUI_DEPS)
             ringct
             ringct_basic
             checkpoints
-            version
-            net
-            device_trezor)
+            version)
 
     foreach(lib ${libs_to_merge})
         list(APPEND objlibs $<TARGET_OBJECTS:obj_${lib}>) # matches naming convention in src/CMakeLists.txt
@@ -141,12 +132,6 @@ if (BUILD_GUI_DEPS)
     endif()
     install(TARGETS wallet_merged
         ARCHIVE DESTINATION ${lib_folder})
-
-    install(FILES ${TREZOR_DEP_LIBS}
-            DESTINATION ${lib_folder})
-    file(WRITE "trezor_link_flags.txt" ${TREZOR_DEP_LINKER})
-    install(FILES "trezor_link_flags.txt"
-            DESTINATION ${lib_folder})
 endif()
 
 add_subdirectory(api)

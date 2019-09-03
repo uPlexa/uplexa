@@ -1,21 +1,21 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, uPlexa Team
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -47,7 +47,7 @@ namespace cryptonote
     static const uint64_t DEFAULT_ORIGINAL_VERSION_TILL_HEIGHT = 0; // <= actual height
     static const time_t DEFAULT_FORKED_TIME = 31557600; // a year in seconds
     static const time_t DEFAULT_UPDATE_TIME = 31557600 / 2;
-    static const uint64_t DEFAULT_WINDOW_SIZE = 10080; // supermajority window check length - a week
+    static const uint64_t DEFAULT_WINDOW_SIZE = 2500; // supermajority window check length
     static const uint8_t DEFAULT_THRESHOLD_PERCENT = 80;
 
     /**
@@ -148,16 +148,6 @@ namespace cryptonote
      */
     bool reorganize_from_block_height(uint64_t height);
     bool reorganize_from_chain_height(uint64_t height);
-
-    /**
-     * @brief called when one or more blocks are popped from the blockchain
-     *
-     * The current fork will be updated by looking up the db,
-     * which is much cheaper than recomputing everything
-     *
-     * @param new_chain_height the height of the chain after popping
-     */
-    void on_block_popped(uint64_t new_chain_height);
 
     /**
      * @brief returns current state at the given time
@@ -272,4 +262,3 @@ namespace cryptonote
   };
 
 }  // namespace cryptonote
-

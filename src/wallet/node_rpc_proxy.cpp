@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -28,6 +28,7 @@
 
 #include "node_rpc_proxy.h"
 #include "rpc/core_rpc_server_commands_defs.h"
+#include "common/json_util.h"
 #include "storages/http_abstract_invoke.h"
 
 using namespace epee;
@@ -37,10 +38,9 @@ namespace tools
 
 static const std::chrono::seconds rpc_timeout = std::chrono::minutes(3) + std::chrono::seconds(30);
 
-NodeRPCProxy::NodeRPCProxy(epee::net_utils::http::http_simple_client &http_client, boost::recursive_mutex &mutex)
+NodeRPCProxy::NodeRPCProxy(epee::net_utils::http::http_simple_client &http_client, boost::mutex &mutex)
   : m_http_client(http_client)
   , m_daemon_rpc_mutex(mutex)
-  , m_offline(false)
 {
   invalidate();
 }
@@ -62,8 +62,6 @@ void NodeRPCProxy::invalidate()
 
 boost::optional<std::string> NodeRPCProxy::get_rpc_version(uint32_t &rpc_version) const
 {
-  if (m_offline)
-    return boost::optional<std::string>("offline");
   if (m_rpc_version == 0)
   {
     cryptonote::COMMAND_RPC_GET_VERSION::request req_t = AUTO_VAL_INIT(req_t);
@@ -87,8 +85,6 @@ void NodeRPCProxy::set_height(uint64_t h)
 
 boost::optional<std::string> NodeRPCProxy::get_info() const
 {
-  if (m_offline)
-    return boost::optional<std::string>("offline");
   const time_t now = time(NULL);
   if (now >= m_get_info_time + 30) // re-cache every 30 seconds
   {
@@ -139,8 +135,6 @@ boost::optional<std::string> NodeRPCProxy::get_block_weight_limit(uint64_t &bloc
 
 boost::optional<std::string> NodeRPCProxy::get_earliest_height(uint8_t version, uint64_t &earliest_height) const
 {
-  if (m_offline)
-    return boost::optional<std::string>("offline");
   if (m_earliest_height[version] == 0)
   {
     cryptonote::COMMAND_RPC_HARD_FORK_INFO::request req_t = AUTO_VAL_INIT(req_t);
@@ -168,8 +162,6 @@ boost::optional<std::string> NodeRPCProxy::get_dynamic_base_fee_estimate(uint64_
   if (result)
     return result;
 
-  if (m_offline)
-    return boost::optional<std::string>("offline");
   if (m_dynamic_base_fee_estimate_cached_height != height || m_dynamic_base_fee_estimate_grace_blocks != grace_blocks)
   {
     cryptonote::COMMAND_RPC_GET_BASE_FEE_ESTIMATE::request req_t = AUTO_VAL_INIT(req_t);
@@ -200,8 +192,6 @@ boost::optional<std::string> NodeRPCProxy::get_fee_quantization_mask(uint64_t &f
   if (result)
     return result;
 
-  if (m_offline)
-    return boost::optional<std::string>("offline");
   if (m_dynamic_base_fee_estimate_cached_height != height)
   {
     cryptonote::COMMAND_RPC_GET_BASE_FEE_ESTIMATE::request req_t = AUTO_VAL_INIT(req_t);

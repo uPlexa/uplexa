@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -136,16 +136,6 @@ DISABLE_VS_WARNINGS(4244 4345)
   void account_base::set_null()
   {
     m_keys = account_keys();
-    m_creation_timestamp = 0;
-  }
-  //-----------------------------------------------------------------
-  void account_base::deinit()
-  {
-    try{
-      m_keys.get_device().disconnect();
-    } catch (const std::exception &e){
-      MERROR("Device disconnect exception: " << e.what());
-    }
   }
   //-----------------------------------------------------------------
   void account_base::forget_spend_key()
@@ -165,9 +155,9 @@ DISABLE_VS_WARNINGS(4244 4345)
     generate_keys(m_keys.m_account_address.m_view_public_key, m_keys.m_view_secret_key, second, two_random ? false : true);
 
     struct tm timestamp = {0};
-    timestamp.tm_year = 2014 - 1900;  // year 2014
-    timestamp.tm_mon = 6 - 1;  // month june
-    timestamp.tm_mday = 8;  // 8th of june
+    timestamp.tm_year = 2018 - 1900;  // year 2018
+    timestamp.tm_mon = 10 - 1;  // month october
+    timestamp.tm_mday = 23;  // 23rd of october
     timestamp.tm_hour = 0;
     timestamp.tm_min = 0;
     timestamp.tm_sec = 0;
@@ -192,9 +182,9 @@ DISABLE_VS_WARNINGS(4244 4345)
     m_keys.m_view_secret_key = viewkey;
 
     struct tm timestamp = {0};
-    timestamp.tm_year = 2014 - 1900;  // year 2014
-    timestamp.tm_mon = 4 - 1;  // month april
-    timestamp.tm_mday = 15;  // 15th of april
+    timestamp.tm_year = 2018 - 1900;  // year 2018
+    timestamp.tm_mon = 10 - 1;  // month october
+    timestamp.tm_mday = 23;  // 23rd of october
     timestamp.tm_hour = 0;
     timestamp.tm_min = 0;
     timestamp.tm_sec = 0;
@@ -215,20 +205,15 @@ DISABLE_VS_WARNINGS(4244 4345)
   void account_base::create_from_device(hw::device &hwdev)
   {
     m_keys.set_device(hwdev);
-    MCDEBUG("device", "device type: "<<typeid(hwdev).name());
-    CHECK_AND_ASSERT_THROW_MES(hwdev.init(), "Device init failed");
-    CHECK_AND_ASSERT_THROW_MES(hwdev.connect(), "Device connect failed");
-    try {
-      CHECK_AND_ASSERT_THROW_MES(hwdev.get_public_address(m_keys.m_account_address), "Cannot get a device address");
-      CHECK_AND_ASSERT_THROW_MES(hwdev.get_secret_keys(m_keys.m_view_secret_key, m_keys.m_spend_secret_key), "Cannot get device secret");
-    } catch (const std::exception &e){
-      hwdev.disconnect();
-      throw;
-    }
+    MCDEBUG("ledger", "device type: "<<typeid(hwdev).name());
+    hwdev.init();
+    hwdev.connect();
+    hwdev.get_public_address(m_keys.m_account_address);
+    hwdev.get_secret_keys(m_keys.m_view_secret_key, m_keys.m_spend_secret_key);
     struct tm timestamp = {0};
-    timestamp.tm_year = 2014 - 1900;  // year 2014
-    timestamp.tm_mon = 4 - 1;  // month april
-    timestamp.tm_mday = 15;  // 15th of april
+    timestamp.tm_year = 2018 - 1900;  // year 2018
+    timestamp.tm_mon = 10 - 1;  // month october
+    timestamp.tm_mday = 23;  // 23rd of october
     timestamp.tm_hour = 0;
     timestamp.tm_min = 0;
     timestamp.tm_sec = 0;

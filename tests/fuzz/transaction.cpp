@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -61,8 +61,6 @@ int TransactionFuzzer::run(const std::string &filename)
 
 int main(int argc, const char **argv)
 {
-  TRY_ENTRY();
   TransactionFuzzer fuzzer;
   return run_fuzzer(argc, argv, fuzzer);
-  CATCH_ENTRY_L0("main", 1);
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -57,14 +57,9 @@ Wallet *WalletManagerImpl::createWallet(const std::string &path, const std::stri
     return wallet;
 }
 
-Wallet *WalletManagerImpl::openWallet(const std::string &path, const std::string &password, NetworkType nettype, uint64_t kdf_rounds, WalletListener * listener)
+Wallet *WalletManagerImpl::openWallet(const std::string &path, const std::string &password, NetworkType nettype, uint64_t kdf_rounds)
 {
     WalletImpl * wallet = new WalletImpl(nettype, kdf_rounds);
-    wallet->setListener(listener);
-    if (listener){
-        listener->onSetWallet(wallet);
-    }
-
     wallet->open(path, password);
     //Refresh addressBook
     wallet->addressBook()->refresh(); 
@@ -127,19 +122,11 @@ Wallet *WalletManagerImpl::createWalletFromDevice(const std::string &path,
                                                   const std::string &deviceName,
                                                   uint64_t restoreHeight,
                                                   const std::string &subaddressLookahead,
-                                                  uint64_t kdf_rounds,
-                                                  WalletListener * listener)
+                                                  uint64_t kdf_rounds)
 {
     WalletImpl * wallet = new WalletImpl(nettype, kdf_rounds);
-    wallet->setListener(listener);
-    if (listener){
-        listener->onSetWallet(wallet);
-    }
-
     if(restoreHeight > 0){
         wallet->setRefreshFromBlockHeight(restoreHeight);
-    } else {
-        wallet->setRefreshFromBlockHeight(wallet->estimateBlockChainHeight());
     }
     auto lookahead = tools::parse_subaddress_lookahead(subaddressLookahead);
     if (lookahead)
@@ -227,6 +214,9 @@ std::string WalletManagerImpl::errorString() const
 
 void WalletManagerImpl::setDaemonAddress(const std::string &address)
 {
+    m_daemonAddress = address;
+    if(m_http_client.is_connected())
+        m_http_client.disconnect();
     m_http_client.set_server(address, boost::none);
 }
 

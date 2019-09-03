@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -34,7 +34,7 @@
 
 namespace cryptonote
 {
-  struct core_stat_info_t
+  struct core_stat_info
   {
     uint64_t tx_pool_size;
     uint64_t blockchain_height;
@@ -50,5 +50,4 @@ namespace cryptonote
       KV_SERIALIZE(top_block_id_str)
     END_KV_SERIALIZE_MAP()
   };
-  typedef epee::misc_utils::struct_init<core_stat_info_t> core_stat_info;
 }

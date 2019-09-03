@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -40,7 +40,7 @@ using namespace epee;
 #include "misc_language.h"
 #include "common/base58.h"
 #include "crypto/hash.h"
-#include "int-util.h"
+#include "common/int-util.h"
 #include "common/dns_utils.h"
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
@@ -76,16 +76,28 @@ namespace cryptonote {
     return CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5;
   }
   //-----------------------------------------------------------------------------------------------
+  size_t get_max_block_size()
+  {
+    return CRYPTONOTE_MAX_BLOCK_SIZE;
+  }
+  //-----------------------------------------------------------------------------------------------
   size_t get_max_tx_size()
   {
     return CRYPTONOTE_MAX_TX_SIZE;
   }
   //-----------------------------------------------------------------------------------------------
   bool get_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint8_t version) {
-    static_assert(DIFFICULTY_TARGET_V2%60==0&&DIFFICULTY_TARGET_V1%60==0,"difficulty targets must be a multiple of 60");
-    const int target = version < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
+    const int target = version < 10 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
     const int target_minutes = target / 60;
-    const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - (target_minutes-1);
+    const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - int_log2(target_minutes);
+
+    uint64_t full_reward_zone = get_min_block_weight(version);
+
+    const uint64_t premine = 73500000000U;
+    if (median_weight > 0 && already_generated_coins < premine && version>=9) {
+      reward = premine;
+      return true;
+    }
 
     uint64_t base_reward = (MONEY_SUPPLY - already_generated_coins) >> emission_speed_factor;
     if (base_reward < FINAL_SUBSIDY_PER_MINUTE*target_minutes)
@@ -93,7 +105,6 @@ namespace cryptonote {
       base_reward = FINAL_SUBSIDY_PER_MINUTE*target_minutes;
     }
 
-    uint64_t full_reward_zone = get_min_block_weight(version);
 
     //make it soft
     if (median_weight < full_reward_zone) {
@@ -223,7 +234,7 @@ namespace cryptonote {
         info.has_payment_id = false;
       }
       else {
-        LOG_PRINT_L1("Wrong address prefix: " << prefix << ", expected " << address_prefix 
+        LOG_PRINT_L1("Wrong address prefix: " << prefix << ", expected " << address_prefix
           << " or " << integrated_address_prefix
           << " or " << subaddress_prefix);
         return false;
@@ -317,13 +328,13 @@ namespace cryptonote {
 }
 
 //--------------------------------------------------------------------------------
-bool parse_hash256(const std::string &str_hash, crypto::hash& hash)
+bool parse_hash256(const std::string str_hash, crypto::hash& hash)
 {
   std::string buf;
   bool res = epee::string_tools::parse_hexstr_to_binbuff(str_hash, buf);
   if (!res || buf.size() != sizeof(crypto::hash))
   {
-    MERROR("invalid hash format: " << str_hash);
+    std::cout << "invalid hash format: <" << str_hash << '>' << std::endl;
     return false;
   }
   else

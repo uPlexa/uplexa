@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -54,7 +54,7 @@ int SignatureFuzzer::init()
 
   try
   {
-    wallet.init("", boost::none, boost::asio::ip::tcp::endpoint{}, 0, true, epee::net_utils::ssl_support_t::e_ssl_support_disabled);
+    wallet.init("");
     wallet.set_subaddress_lookahead(1, 1);
     wallet.generate("", "", spendkey, true, false);
 
@@ -92,8 +92,6 @@ int SignatureFuzzer::run(const std::string &filename)
 
 int main(int argc, const char **argv)
 {
-  TRY_ENTRY();
   SignatureFuzzer fuzzer;
   return run_fuzzer(argc, argv, fuzzer);
-  CATCH_ENTRY_L0("main", 1);
 }

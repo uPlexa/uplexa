@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -55,8 +55,7 @@ public:
   {
     if (m_ok)
     {
-      try { mp_http_client->disconnect(); }
-      catch (...) { /* do not propagate through dtor */ }
+      mp_http_client->disconnect();
     }
   }
 

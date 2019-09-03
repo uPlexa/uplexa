@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -70,9 +70,8 @@ namespace {
     }
     else
     {
-      std::string ret{p_error_text};
+      return std::string{p_error_text};
       LocalFree(p_error_text);
-      return ret;
     }
   }
 

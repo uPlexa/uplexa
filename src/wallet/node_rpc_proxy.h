@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -39,10 +39,9 @@ namespace tools
 class NodeRPCProxy
 {
 public:
-  NodeRPCProxy(epee::net_utils::http::http_simple_client &http_client, boost::recursive_mutex &mutex);
+  NodeRPCProxy(epee::net_utils::http::http_simple_client &http_client, boost::mutex &mutex);
 
   void invalidate();
-  void set_offline(bool offline) { m_offline = offline; }
 
   boost::optional<std::string> get_rpc_version(uint32_t &version) const;
   boost::optional<std::string> get_height(uint64_t &height) const;
@@ -57,8 +56,7 @@ private:
   boost::optional<std::string> get_info() const;
 
   epee::net_utils::http::http_simple_client &m_http_client;
-  boost::recursive_mutex &m_daemon_rpc_mutex;
-  bool m_offline;
+  boost::mutex &m_daemon_rpc_mutex;
 
   mutable uint64_t m_height;
   mutable uint64_t m_earliest_height[256];

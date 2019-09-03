@@ -353,14 +353,13 @@ eof:
           std::string command;
           bool get_line_ret = m_stdin_reader.get_line(command);
           if (!m_running)
-            break;
-          if (m_stdin_reader.eos())
-          {
-            MGINFO("EOF on stdin, exiting");
-            std::cout << std::endl;
-            break;
-          }
-          if (!get_line_ret)
+          break;
+        if (m_stdin_reader.eos())
+        {
+          MGINFO("EOF on stdin, exiting");
+          break;
+        }
+        if (!get_line_ret)
           {
             MERROR("Failed to read line.");
           }

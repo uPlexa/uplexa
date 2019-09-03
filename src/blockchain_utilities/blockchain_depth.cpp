@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  mlog_configure(mlog_get_default_log_path("monero-blockchain-depth.log"), true);
+  mlog_configure(mlog_get_default_log_path("uplexa-blockchain-depth.log"), true);
   if (!command_line::is_arg_defaulted(vm, arg_log_level))
     mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
   else
@@ -187,7 +187,8 @@ int main(int argc, char* argv[])
   }
   else
   {
-    const cryptonote::blobdata bd = db->get_block_blob_from_height(opt_height);
+    const crypto::hash block_hash = db->get_block_hash_from_height(opt_height);
+    const cryptonote::blobdata bd = db->get_block_blob(block_hash);
     cryptonote::block b;
     if (!cryptonote::parse_and_validate_block_from_blob(bd, b))
     {

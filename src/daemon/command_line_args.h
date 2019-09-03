@@ -1,21 +1,21 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, uPlexa Team
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -35,7 +35,7 @@
 
 namespace daemon_args
 {
-  std::string const WINDOWS_SERVICE_NAME = "Monero Daemon";
+  std::string const WINDOWS_SERVICE_NAME = "uPlexa Daemon";
 
   const command_line::arg_descriptor<std::string, false, true, 2> arg_config_file = {
     "config-file"
@@ -96,12 +96,6 @@ namespace daemon_args
   , 0
   };
 
-  const command_line::arg_descriptor<bool> arg_public_node = {
-    "public-node"
-  , "Allow other users to use the node as a remote (restricted RPC mode, view-only commands) and advertise it over P2P"
-  , false
-  };
-
   const command_line::arg_descriptor<std::string> arg_zmq_rpc_bind_ip   = {
     "zmq-rpc-bind-ip"
       , "IP for ZMQ RPC server to listen on"
@@ -120,11 +114,6 @@ namespace daemon_args
         return std::to_string(config::stagenet::ZMQ_RPC_DEFAULT_PORT);
       return val;
     }
-  };
-
-  const command_line::arg_descriptor<bool> arg_zmq_rpc_disabled = {
-    "no-zmq"
-  , "Disable ZMQ RPC server"
   };
 
 }  // namespace daemon_args

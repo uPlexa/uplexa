@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2018, The Monero Project
+# Copyright (c) 2018 uPlexa Team
 # 
 # All rights reserved.
 # 
@@ -26,8 +26,24 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(lmdb_sources database.cpp error.cpp table.cpp value_stream.cpp)
-set(lmdb_headers database.h error.h key_stream.h table.h transaction.h util.h value_stream.h)
+import requests
+import json
 
-monero_add_library(lmdb_lib ${lmdb_sources} ${lmdb_headers})
-target_link_libraries(lmdb_lib common ${LMDB_LIBRARY})
+class JSONRPC(object):
+    def __init__(self, url):
+        self.url = url
+
+    def send_request(self, inputs):
+        res = requests.post(
+            self.url,
+            data=json.dumps(inputs),
+            headers={'content-type': 'application/json'})
+        res = res.json()
+        
+        assert 'error' not in res, res
+
+        return res['result']
+
+
+
+

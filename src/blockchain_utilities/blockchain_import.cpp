@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -37,7 +37,6 @@
 #include "misc_log_ex.h"
 #include "bootstrap_file.h"
 #include "bootstrap_serialization.h"
-#include "blocks/blocks.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "serialization/binary_utils.h" // dump_binary(), parse_binary()
 #include "serialization/json_utils.h" // dump_json()
@@ -193,20 +192,8 @@ int check_flush(cryptonote::core &core, std::vector<block_complete_entry> &block
   }
   core.prevalidate_block_hashes(core.get_blockchain_storage().get_db().height(), hashes);
 
-  std::vector<block> pblocks;
-  if (!core.prepare_handle_incoming_blocks(blocks, pblocks))
-  {
-    MERROR("Failed to prepare to add blocks");
-    return 1;
-  }
-  if (!pblocks.empty() && pblocks.size() != blocks.size())
-  {
-    MERROR("Unexpected parsed blocks size");
-    core.cleanup_handle_incoming_blocks();
-    return 1;
-  }
+  core.prepare_handle_incoming_blocks(blocks);
 
-  size_t blockidx = 0;
   for(const block_complete_entry& block_entry: blocks)
   {
     // process transactions
@@ -227,7 +214,7 @@ int check_flush(cryptonote::core &core, std::vector<block_complete_entry> &block
 
     block_verification_context bvc = boost::value_initialized<block_verification_context>();
 
-    core.handle_incoming_block(block_entry.block, pblocks.empty() ? NULL : &pblocks[blockidx++], bvc, false); // <--- process block
+    core.handle_incoming_block(block_entry.block, bvc, false); // <--- process block
 
     if(bvc.m_verifivation_failed)
     {
@@ -298,8 +285,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
   }
 
   // 4 byte magic + (currently) 1024 byte header structures
-  uint8_t major_version, minor_version;
-  bootstrap.seek_to_first_chunk(import_file, major_version, minor_version);
+  bootstrap.seek_to_first_chunk(import_file);
 
   std::string str1;
   char buffer1[1024];
@@ -409,7 +395,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
     {
       std::cout << refresh_string << "block " << h-1
         << " / " << block_stop
-        << "\r" << std::flush;
+        << std::flush;
       std::cout << ENDL << ENDL;
       MINFO("Specified block number reached - stopping.  block: " << h-1 << "  total blocks: " << h);
       quit = 1;
@@ -420,23 +406,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
     {
       str1.assign(buffer_block, chunk_size);
       bootstrap::block_package bp;
-      bool res;
-      if (major_version == 0)
-      {
-        bootstrap::block_package_1 bp1;
-        res = ::serialization::parse_binary(str1, bp1);
-        if (res)
-        {
-          bp.block = std::move(bp1.block);
-          bp.txs = std::move(bp1.txs);
-          bp.block_weight = bp1.block_weight;
-          bp.cumulative_difficulty = bp1.cumulative_difficulty;
-          bp.coins_generated = bp1.coins_generated;
-        }
-      }
-      else
-        res = ::serialization::parse_binary(str1, bp);
-      if (!res)
+      if (! ::serialization::parse_binary(str1, bp))
         throw std::runtime_error("Error in deserialization of chunk");
 
       int display_interval = 1000;
@@ -461,7 +431,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
         {
           std::cout << refresh_string << "block " << h-1
             << " / " << block_stop
-            << "\r" << std::flush;
+            << std::flush;
         }
 
         if (opt_verify)
@@ -484,7 +454,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
         }
         else
         {
-          std::vector<std::pair<transaction, blobdata>> txs;
+          std::vector<transaction> txs;
           std::vector<transaction> archived_txs;
 
           archived_txs = bp.txs;
@@ -501,7 +471,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
             // because add_block() calls
             // add_transaction(blk_hash, blk.miner_tx) first, and
             // then a for loop for the transactions in txs.
-            txs.push_back(std::make_pair(tx, tx_to_blob(tx)));
+            txs.push_back(tx);
           }
 
           size_t block_weight;
@@ -514,8 +484,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
 
           try
           {
-            uint64_t long_term_block_weight = core.get_blockchain_storage().get_next_long_term_block_weight(block_weight);
-            core.get_blockchain_storage().get_db().add_block(std::make_pair(b, block_to_blob(b)), block_weight, long_term_block_weight, cumulative_difficulty, coins_generated, txs);
+            core.get_blockchain_storage().get_db().add_block(b, block_weight, cumulative_difficulty, coins_generated, txs);
           }
           catch (const std::exception& e)
           {
@@ -711,7 +680,7 @@ int main(int argc, char* argv[])
   m_config_folder = command_line::get_arg(vm, cryptonote::arg_data_dir);
   db_arg_str = command_line::get_arg(vm, arg_database);
 
-  mlog_configure(mlog_get_default_log_path("monero-blockchain-import.log"), true);
+  mlog_configure(mlog_get_default_log_path("uplexa-blockchain-import.log"), true);
   if (!command_line::is_arg_defaulted(vm, arg_log_level))
     mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
   else
@@ -789,12 +758,7 @@ int main(int argc, char* argv[])
   {
 
   core.disable_dns_checkpoints(true);
-#if defined(PER_BLOCK_CHECKPOINT)
-  const GetCheckpointsCallback& get_checkpoints = blocks::GetCheckpointsData;
-#else
-  const GetCheckpointsCallback& get_checkpoints = nullptr;
-#endif
-  if (!core.init(vm, nullptr, get_checkpoints))
+  if (!core.init(vm, NULL))
   {
     std::cerr << "Failed to initialize core" << ENDL;
     return 1;

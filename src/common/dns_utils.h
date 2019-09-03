@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -30,7 +30,6 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include <boost/optional/optional_fwd.hpp>
 
 namespace tools
 {
@@ -144,7 +143,7 @@ private:
    * @return A vector of strings containing the requested record; or an empty vector
    */
   // TODO: modify this to accommodate DNSSEC
-  std::vector<std::string> get_record(const std::string& url, int record_type, boost::optional<std::string> (*reader)(const char *,size_t), bool& dnssec_available, bool& dnssec_valid);
+  std::vector<std::string> get_record(const std::string& url, int record_type, std::string (*reader)(const char *,size_t), bool& dnssec_available, bool& dnssec_valid);
 
   /**
    * @brief Checks a string to see if it looks like a URL

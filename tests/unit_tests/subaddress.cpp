@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -49,7 +49,7 @@ class WalletSubaddress : public ::testing::Test
       catch (const std::exception& e)
       {
         LOG_ERROR("failed to generate wallet: " << e.what());
-        throw;
+        throw e;
       }
 
       w1.add_subaddress_account(test_label);

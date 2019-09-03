@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -45,10 +45,6 @@ namespace daemonize
 
     static std::string const NAME;
 
-    t_executor(uint16_t public_rpc_port = 0) : public_rpc_port(public_rpc_port)
-    {
-    }
-
     static void init_options(
         boost::program_options::options_description & configurable_options
       );
@@ -66,8 +62,5 @@ namespace daemonize
     bool run_interactive(
         boost::program_options::variables_map const & vm
       );
-
-  private:
-    uint16_t public_rpc_port;
   };
 }

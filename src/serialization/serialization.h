@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -212,7 +212,7 @@ inline bool do_serialize(Archive &ar, bool &v)
  * \brief self-explanatory
  */
 #define END_SERIALIZE()				\
-  return ar.stream().good();			\
+  return true;					\
   }
 
 /*! \macro VALUE(f)
@@ -362,7 +362,6 @@ namespace serialization {
     bool r = do_serialize(ar, v);
     return r && check_stream_state(ar, false);
   }
-
   /*! \fn serialize
    *
    * \brief serializes \a v into \a ar

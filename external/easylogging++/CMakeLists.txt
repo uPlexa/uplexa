@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, uPlexa Team
 # 
 # All rights reserved.
 # 
@@ -33,7 +33,6 @@ project(easylogging CXX)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 find_package(Threads)
-find_package(Backtrace)
 
 add_library(easylogging
   easylogging++.cc)
@@ -42,8 +41,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(easylogging
   PRIVATE
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${Backtrace_LIBRARIES})
+    ${CMAKE_THREAD_LIBS_INIT})
 
 # GUI/libwallet install target
 if (BUILD_GUI_DEPS)

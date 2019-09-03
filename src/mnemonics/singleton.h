@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -50,8 +50,8 @@ namespace Language
   class Singleton
   {
     Singleton() {}
-    Singleton(Singleton &s) = delete;
-    Singleton& operator=(const Singleton&) = delete;
+    Singleton(Singleton &s) {}
+    Singleton& operator=(const Singleton&) {}
   public:
     static T* instance()
     {

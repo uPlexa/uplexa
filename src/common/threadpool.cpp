@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -27,6 +27,10 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "misc_log_ex.h"
 #include "common/threadpool.h"
+
+#include <cassert>
+#include <limits>
+#include <stdexcept>
 
 #include "cryptonote_config.h"
 #include "common/util.h"

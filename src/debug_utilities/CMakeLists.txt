@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, uPlexa Team
 #
 # All rights reserved.
 #
@@ -46,7 +46,7 @@ target_link_libraries(cn_deserialize
 
 set_property(TARGET cn_deserialize
 	PROPERTY
-	OUTPUT_NAME "monero-utils-deserialize")
+	OUTPUT_NAME "uplexa-utils-deserialize")
 
 
 set(object_sizes_sources
@@ -67,27 +67,4 @@ target_link_libraries(object_sizes
 
 set_property(TARGET object_sizes
 	PROPERTY
-	OUTPUT_NAME "monero-utils-object-sizes")
-
-
-set(dns_checks_sources
-  dns_checks.cpp
-  )
-
-monero_add_executable(dns_checks
-  ${dns_checks_sources}
-  ${dns_checks_private_headers})
-
-target_link_libraries(dns_checks
-  LINK_PRIVATE
-    common
-    epee
-    version
-    ${Boost_PROGRAM_OPTIONS_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
-    ${CMAKE_THREAD_LIBS_INIT})
-
-set_property(TARGET dns_checks
-	PROPERTY
-	OUTPUT_NAME "monero-utils-dns-checks")
-
+	OUTPUT_NAME "uplexa-utils-object-sizes")

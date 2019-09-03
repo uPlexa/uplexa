@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -35,7 +35,6 @@
 #include <vector>
 
 #include "warnings.h"
-#include "misc_log_ex.h"
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
 #include "crypto-tests.h"
@@ -60,7 +59,6 @@ bool operator !=(const key_derivation &a, const key_derivation &b) {
 DISABLE_GCC_WARNING(maybe-uninitialized)
 
 int main(int argc, char *argv[]) {
-  TRY_ENTRY();
   fstream input;
   string cmd;
   size_t test = 0;
@@ -268,5 +266,4 @@ error:
     error = true;
   }
   return error ? 1 : 0;
-  CATCH_ENTRY_L0("main", 1);
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -54,6 +54,7 @@ public:
     , t_core & core
     , t_p2p & p2p
     , const bool restricted
+    , const cryptonote::network_type nettype
     , const std::string & port
     , const std::string & description
     )
@@ -61,7 +62,7 @@ public:
   {
     MGINFO("Initializing " << m_description << " RPC server...");
 
-    if (!m_server.init(vm, restricted, port))
+    if (!m_server.init(vm, restricted, nettype, port))
     {
       throw std::runtime_error("Failed to initialize " + m_description + " RPC server.");
     }

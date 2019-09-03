@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -91,7 +91,7 @@ namespace wallet_args
     const std::function<void(const std::string&, bool)> &print,
     const char *default_log_name,
     bool log_to_console)
-  
+
   {
     namespace bf = boost::filesystem;
     namespace po = boost::program_options;
@@ -140,8 +140,8 @@ namespace wallet_args
 
       if (command_line::get_arg(vm, command_line::arg_help))
       {
-        Print(print) << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << ENDL;
-        Print(print) << wallet_args::tr("This is the command line monero wallet. It needs to connect to a monero\n"
+        Print(print) << "uPlexa '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << ENDL;
+        Print(print) << wallet_args::tr("This is the command line uplexa wallet. It needs to connect to a uplexa\n"
 												  "daemon to work correctly.") << ENDL;
         Print(print) << wallet_args::tr("Usage:") << ENDL << "  " << usage;
         Print(print) << desc_all;
@@ -150,7 +150,7 @@ namespace wallet_args
       }
       else if (command_line::get_arg(vm, command_line::arg_version))
       {
-        Print(print) << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")";
+        Print(print) << "uPlexa '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")";
         should_terminate = true;
         return true;
       }
@@ -201,26 +201,15 @@ namespace wallet_args
     if (!command_line::is_arg_defaulted(vm, arg_max_concurrency))
       tools::set_max_concurrency(command_line::get_arg(vm, arg_max_concurrency));
 
-    Print(print) << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")";
+    Print(print) << "uPlexa '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")";
 
     if (!command_line::is_arg_defaulted(vm, arg_log_level))
       MINFO("Setting log level = " << command_line::get_arg(vm, arg_log_level));
     else
-    {
-      const char *logs = getenv("MONERO_LOGS");
-      MINFO("Setting log levels = " << (logs ? logs : "<default>"));
-    }
+      MINFO("Setting log levels = " << getenv("MONERO_LOGS"));
     MINFO(wallet_args::tr("Logging to: ") << log_path);
 
     Print(print) << boost::format(wallet_args::tr("Logging to %s")) % log_path;
-
-    const ssize_t lockable_memory = tools::get_lockable_memory();
-    if (lockable_memory >= 0 && lockable_memory < 256 * 4096) // 256 pages -> at least 256 secret keys and other such small/medium objects
-      Print(print) << tr("WARNING: You may not have a high enough lockable memory limit")
-#ifdef ELPP_OS_UNIX
-        << ", " << tr("see ulimit -l")
-#endif
-        ;
 
     return {std::move(vm), should_terminate};
   }

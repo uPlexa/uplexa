@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 //
 // All rights reserved.
 //
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  mlog_configure(mlog_get_default_log_path("monero-blockchain-export.log"), true);
+  mlog_configure(mlog_get_default_log_path("uplexa-blockchain-export.log"), true);
   if (!command_line::is_arg_defaulted(vm, arg_log_level))
     mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
   else
@@ -176,12 +176,6 @@ int main(int argc, char* argv[])
     return 1;
   }
   r = core_storage->init(db, opt_testnet ? cryptonote::TESTNET : opt_stagenet ? cryptonote::STAGENET : cryptonote::MAINNET);
-
-  if (core_storage->get_blockchain_pruning_seed() && !opt_blocks_dat)
-  {
-    LOG_PRINT_L0("Blockchain is pruned, cannot export");
-    return 1;
-  }
 
   CHECK_AND_ASSERT_MES(r, 1, "Failed to initialize source blockchain storage");
   LOG_PRINT_L0("Source blockchain storage initialized OK");

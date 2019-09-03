@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, uPlexa Team
 // 
 // All rights reserved.
 // 
@@ -33,4 +33,3 @@
 #include <stddef.h>
 
 void generate_random_bytes_not_thread_safe(size_t n, void *result);
-void add_extra_entropy_not_thread_safe(const void *ptr, size_t bytes);

@@ -1,21 +1,21 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, uPlexa Team
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -43,11 +43,10 @@ t_command_server::t_command_server(
     uint32_t ip
   , uint16_t port
   , const boost::optional<tools::login>& login
-  , const epee::net_utils::ssl_options_t& ssl_options
   , bool is_rpc
   , cryptonote::core_rpc_server* rpc_server
   )
-  : m_parser(ip, port, login, ssl_options, is_rpc, rpc_server)
+  : m_parser(ip, port, login, is_rpc, rpc_server)
   , m_command_lookup()
   , m_is_rpc(is_rpc)
 {
@@ -65,7 +64,6 @@ t_command_server::t_command_server(
   m_command_lookup.set_handler(
       "print_pl"
     , std::bind(&t_command_parser_executor::print_peer_list, &m_parser, p::_1)
-    , "print_pl [white] [gray] [<limit>]"
     , "Print the current peer list."
     );
   m_command_lookup.set_handler(
@@ -77,11 +75,6 @@ t_command_server::t_command_server(
       "print_cn"
     , std::bind(&t_command_parser_executor::print_connections, &m_parser, p::_1)
     , "Print the current connections."
-    );
-  m_command_lookup.set_handler(
-      "print_net_stats"
-    , std::bind(&t_command_parser_executor::print_net_stats, &m_parser, p::_1)
-    , "Print network statistics."
     );
   m_command_lookup.set_handler(
       "print_bc"
@@ -110,18 +103,13 @@ t_command_server::t_command_server(
   m_command_lookup.set_handler(
       "start_mining"
     , std::bind(&t_command_parser_executor::start_mining, &m_parser, p::_1)
-    , "start_mining <addr> [<threads>|auto] [do_background_mining] [ignore_battery]"
-    , "Start mining for specified address. Defaults to 1 thread and no background mining. Use \"auto\" to autodetect optimal number of threads."
+    , "start_mining <addr> [<threads>] [do_background_mining] [ignore_battery]"
+    , "Start mining for specified address. Defaults to 1 thread and no background mining."
     );
   m_command_lookup.set_handler(
       "stop_mining"
     , std::bind(&t_command_parser_executor::stop_mining, &m_parser, p::_1)
     , "Stop mining."
-    );
-  m_command_lookup.set_handler(
-      "mining_status"
-    , std::bind(&t_command_parser_executor::mining_status, &m_parser, p::_1)
-    , "Show current mining status."
     );
   m_command_lookup.set_handler(
       "print_pool"
@@ -215,6 +203,16 @@ t_command_server::t_command_server(
     , "Set the <max_number> of in peers."
     );
     m_command_lookup.set_handler(
+      "start_save_graph"
+    , std::bind(&t_command_parser_executor::start_save_graph, &m_parser, p::_1)
+    , "Start saving data for dr uplexa."
+    );
+    m_command_lookup.set_handler(
+      "stop_save_graph"
+    , std::bind(&t_command_parser_executor::stop_save_graph, &m_parser, p::_1)
+    , "Stop saving data for dr uplexa."
+    );
+    m_command_lookup.set_handler(
       "hard_fork_info"
     , std::bind(&t_command_parser_executor::hard_fork_info, &m_parser, p::_1)
     , "Print the hard fork voting information."
@@ -233,14 +231,8 @@ t_command_server::t_command_server(
     m_command_lookup.set_handler(
       "unban"
     , std::bind(&t_command_parser_executor::unban, &m_parser, p::_1)
-    , "unban <address>"
+    , "unban <IP>"
     , "Unban a given <IP>."
-    );
-    m_command_lookup.set_handler(
-      "banned"
-    , std::bind(&t_command_parser_executor::banned, &m_parser, p::_1)
-    , "banned <address>"
-    , "Check whether an <address> is banned."
     );
     m_command_lookup.set_handler(
       "flush_txpool"
@@ -290,25 +282,9 @@ t_command_server::t_command_server(
     , "Print information about the blockchain sync state."
     );
     m_command_lookup.set_handler(
-      "pop_blocks"
-    , std::bind(&t_command_parser_executor::pop_blocks, &m_parser, p::_1)
-    , "pop_blocks <nblocks>"
-    , "Remove blocks from end of blockchain"
-    );
-    m_command_lookup.set_handler(
       "version"
     , std::bind(&t_command_parser_executor::version, &m_parser, p::_1)
     , "Print version information."
-    );
-    m_command_lookup.set_handler(
-      "prune_blockchain"
-    , std::bind(&t_command_parser_executor::prune_blockchain, &m_parser, p::_1)
-    , "Prune the blockchain."
-    );
-    m_command_lookup.set_handler(
-      "check_blockchain_pruning"
-    , std::bind(&t_command_parser_executor::check_blockchain_pruning, &m_parser, p::_1)
-    , "Check the blockchain pruning."
     );
 }
 
@@ -359,7 +335,7 @@ bool t_command_server::help(const std::vector<std::string>& args)
 std::string t_command_server::get_commands_str()
 {
   std::stringstream ss;
-  ss << "Monero '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << std::endl;
+  ss << "uPlexa '" << MONERO_RELEASE_NAME << "' (v" << MONERO_VERSION_FULL << ")" << std::endl;
   ss << "Commands: " << std::endl;
   std::string usage = m_command_lookup.get_usage();
   boost::replace_all(usage, "\n", "\n  ");

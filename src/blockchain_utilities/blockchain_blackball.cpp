@@ -1215,7 +1215,7 @@ int main(int argc, char* argv[])
           const std::pair<uint64_t, uint64_t> output = std::make_pair(txin.amount, absolute[0]);
           if (opt_verbose)
           {
-            MINFO("Marking output " << output.first << "/" << output.second << "as spent, due to being used in a 1-ring");
+            MINFO("Marking output " << output.first << "/" << output.second << " as spent, due to being used in a 1-ring");
             std::cout << "\r" << start_idx << "/" << n_txes << "         \r" << std::flush;
           }
           blackballs.push_back(output);
@@ -1229,7 +1229,7 @@ int main(int argc, char* argv[])
             const std::pair<uint64_t, uint64_t> output = std::make_pair(txin.amount, absolute[o]);
             if (opt_verbose)
             {
-              MINFO("Marking output " << output.first << "/" << output.second << "as spent, due to being used in " << new_ring.size() << " identical " << new_ring.size() << "-rings");
+              MINFO("Marking output " << output.first << "/" << output.second << " as spent, due to being used in " << new_ring.size() << " identical " << new_ring.size() << "-rings");
               std::cout << "\r" << start_idx << "/" << n_txes << "         \r" << std::flush;
             }
             blackballs.push_back(output);
@@ -1244,7 +1244,7 @@ int main(int argc, char* argv[])
             const std::pair<uint64_t, uint64_t> output = std::make_pair(txin.amount, absolute[o]);
             if (opt_verbose)
             {
-              MINFO("Marking output " << output.first << "/" << output.second << "as spent, due to being used in " << new_ring.size() << " subsets of " << new_ring.size() << "-rings");
+              MINFO("Marking output " << output.first << "/" << output.second << " as spent, due to being used in " << new_ring.size() << " subsets of " << new_ring.size() << "-rings");
               std::cout << "\r" << start_idx << "/" << n_txes << "         \r" << std::flush;
             }
             blackballs.push_back(output);
@@ -1280,7 +1280,7 @@ int main(int argc, char* argv[])
               const std::pair<uint64_t, uint64_t> output = std::make_pair(txin.amount, common[0]);
               if (opt_verbose)
               {
-                MINFO("Marking output " << output.first << "/" << output.second << "as spent, due to being used in rings with a single common element");
+                MINFO("Marking output " << output.first << "/" << output.second << " as spent, due to being used in rings with a single common element");
                 std::cout << "\r" << start_idx << "/" << n_txes << "         \r" << std::flush;
               }
               blackballs.push_back(output);
@@ -1392,7 +1392,7 @@ int main(int argc, char* argv[])
           const std::pair<uint64_t, uint64_t> output = std::make_pair(od.amount, last_unknown);
           if (opt_verbose)
           {
-            MINFO("Marking output " << output.first << "/" << output.second << "as spent, due to being used in a " <<
+            MINFO("Marking output " << output.first << "/" << output.second << " as spent, due to being used in a " <<
                 absolute.size() << "-ring where all other outputs are known to be spent");
           }
           blackballs.push_back(output);

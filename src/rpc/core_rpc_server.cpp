@@ -2121,7 +2121,7 @@ namespace cryptonote
     try
     {
       // 0 is placeholder for the whole chain
-     const uint64_t req_to_height = req_to_height ? req_to_height : (m_core.get_current_blockchain_height() - 1);
+      const uint64_t req_to_height = req_to_height ? req_to_height : (m_core.get_current_blockchain_height() - 1);
       for (uint64_t amount: req.amounts)
       {
         static struct D

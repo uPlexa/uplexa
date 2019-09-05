@@ -2,6 +2,7 @@
 
 Copyright (c) 2018-2019 uPlexa.  
 Copyright (c) 2014-2019 The Monero Project.
+
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Development resources
@@ -131,7 +132,7 @@ invokes cmake commands as needed.
 * Change to the root of the source code directory, change to the most recent release branch, and build:
 
         cd uplexa
-        git checkout master
+        git checkout stable
         make release
 
     *Optional*: If your machine has several cores and enough memory, enable
@@ -146,7 +147,7 @@ invokes cmake commands as needed.
     uPlexa software. If you would like to use and test the most recent software,
     use ```git checkout master```. The master branch may contain updates that are
     both unstable and incompatible with release software, though testing is always
-    encouraged.
+    encouraged. If you would like to checkout the most stable branch, please use ```git checkout stable```
 
 * The resulting executables can be found in `build/release/bin`
 
@@ -292,7 +293,7 @@ application.
 
 * If you would like a specific [version/tag](https://github.com/uPlexa/uplexa/tags), do a git checkout for that version. eg. 'v0.2.1.0'. If you dont care about the version and just want binaries from master, skip this step:
 
-        git checkout master
+        git checkout stable
 
 * If you are on a 64-bit system, run:
 

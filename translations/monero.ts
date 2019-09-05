@@ -3419,7 +3419,8 @@ Transaction </source>
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="5799"/>
-        <source>Donating %s %s to uPlexa Team (donate.getmonero.org or %s).</source>
+        <source>Donating %s %s to uPlexa Team
+// Copyright (c) 2014-2019, The Monero Project (donate.getmonero.org or %s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1,4 +1,5 @@
 # Portions Copyright (c) 2017-2018, uPlexa Team
+// Copyright (c) 2014-2019, The Monero Project
 # This file is based off of the https://code.google.com/archive/p/ios-cmake/
 # It has been altered for Monero iOS development
 #

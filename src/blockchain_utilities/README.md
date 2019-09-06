@@ -1,7 +1,7 @@
 # Monero Blockchain Utilities
 
 Copyright (c) 2018-2019, uPlexa Team
-// Copyright (c) 2014-2019, The Monero Project
+Copyright (c) 2014-2019, The Monero Project
 
 ## Introduction
 

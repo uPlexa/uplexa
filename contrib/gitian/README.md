@@ -1,9 +1,9 @@
 Gitian building
 ================
 
-*Setup instructions for a Gitian build of Monero using a VM or physical system.*
+*Setup instructions for a Gitian build of uPlexa using a VM or physical system.*
 
-Gitian is the deterministic build process that is used to build the Monero CLI
+Gitian is the deterministic build process that is used to build the uPlexa CLI
 executables. It provides a way to be reasonably sure that the
 executables are really built from the git source. It also makes sure that
 the same, tested dependencies are used and statically built into the executable.
@@ -87,7 +87,7 @@ Initial Gitian Setup
 The `gitian-build.py` script will checkout different release tags, so it's best to copy it:
 
 ```bash
-cp monero/contrib/gitian/gitian-build.py .
+cp uplexa/contrib/gitian/gitian-build.py .
 ```
 
 Setup the required environment, you only need to do this once:

@@ -2149,7 +2149,7 @@ Otherwise, you prove the reserve of the smallest possible amount above &lt;amoun
 To start synchronizing with the daemon, use the &quot;refresh&quot; command.
 Use the &quot;help&quot; command to see the list of available commands.
 Use &quot;help &lt;command&gt;&quot; to see a command&apos;s documentation.
-Always use the &quot;exit&quot; command when closing monero-wallet-cli to save 
+Always use the &quot;exit&quot; command when closing uplexa-wallet-cli to save
 your current session&apos;s state. Otherwise, you might need to synchronize 
 your wallet again (your wallet keys are NOT at risk in any case).
 </source>
@@ -2479,7 +2479,8 @@ Warning: Some input keys being spent are from </source>
     </message>
     <message>
         <location filename="../src/simplewallet/simplewallet.cpp" line="4630"/>
-        <source>Donating </source>
+        <source>Donating %s %s to uPlexa Team
+// Copyright (c) 2014-2019, The Monero Project (donate.getmonero.org or %s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

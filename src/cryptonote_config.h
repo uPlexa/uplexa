@@ -179,6 +179,8 @@ namespace config
     std::string const GENESIS_TX = "013c01ff0005090299f780a50b4a32bb073160d9ffd9ac3a56b8848cbd4fca1a32f2e3b4bdda32601e028df8a2887b6fc40c8a5f8d71da9071e4ec7e73d3dfebc30f1ee2aac5c7fbd56aac020223c639861f1259cf41dcbccdac8e68f5194e9a15e7817accd97fbe52239d832cd0860302736caee707092c733eeea0b019fac896c0f66829c57815fd8b68e8c53ebd3ed8c09a0c02d62dd9aa3ca0b9c4dfa5361a9a908f2207a0dba415e46db5110eb7e60f61186121018790193f157f45d642de432da453be81b1f2d2d358757823c0f48e444859491d";
     uint32_t const GENESIS_NONCE = 10000;
 
+    std::string const GOVERNANCE_WALLET_ADDRESS = ""; // In case we are to implement governance
+
   namespace testnet
   {
     uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 0x3e5e23;
@@ -194,6 +196,8 @@ namespace config
       } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff000509027d0274a9939602c664d5a8b5c6831bb42c192ae57bded8c57f44b1833cb1629c1e0274e4174f847da69a48c8269a29bdd2bc473355953fc1b5860cfa3352af01043dac020213f880e3314ad9c46e9f99cc822fb23fa0d1a802a17ad0c22688b0980bba5533d0860302146144a8b7cbee8157bfea25f7f35d3cd199f4a2b6e137b3fdaade89b2a03ddac09a0c027c1a3cadd582454fcdc48f4fb68679c507604a657fa572e8c9a53ee0583b025221016f1f500ab50b6d90a3f000211387b9bb9812f166de3e29ffd999c765b5fe28e6";
     uint32_t const GENESIS_NONCE = 10001;
+
+    std::string const GOVERNANCE_WALLET_ADDRESS = ""; // In case we are to implement governance
   }
 
   namespace stagenet

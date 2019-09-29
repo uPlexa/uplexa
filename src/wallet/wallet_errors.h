@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+
+// Copyright (c) 2014-2019, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -72,6 +73,7 @@ namespace tools
     //         tx_parse_error
     //         get_tx_pool_error
     //         out_of_hashchain_bounds_error
+    //       signature_check_failed
     //       transfer_error *
     //         get_outs_general_error
     //         not_enough_unlocked_money
@@ -416,6 +418,14 @@ namespace tools
       }
 
       std::string to_string() const { return refresh_error::to_string(); }
+    };
+    //----------------------------------------------------------------------------------------------------
+    struct signature_check_failed : public wallet_logic_error
+    {
+      explicit signature_check_failed(std::string&& loc, const std::string& message)
+        : wallet_logic_error(std::move(loc), "Signature check failed " + message)
+      {
+      }
     };
     //----------------------------------------------------------------------------------------------------
     struct transfer_error : public wallet_logic_error

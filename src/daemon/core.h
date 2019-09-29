@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+
+// Copyright (c) 2014-2019, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -28,6 +29,7 @@
 
 #pragma once
 
+#include "blocks/blocks.h"
 #include "cryptonote_core/cryptonote_core.h"
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
 #include "misc_log_ex.h"
@@ -85,7 +87,12 @@ public:
     //initialize core here
     MGINFO("Initializing core...");
     std::string config_subdir = get_config_subdir();
-    if (!m_core.init(m_vm_HACK, config_subdir.empty() ? NULL : config_subdir.c_str()))
+#if defined(PER_BLOCK_CHECKPOINT)
+    const cryptonote::GetCheckpointsCallback& get_checkpoints = blocks::GetCheckpointsData;
+#else
+    const cryptonote::GetCheckpointsCallback& get_checkpoints = nullptr;
+#endif
+    if (!m_core.init(m_vm_HACK, config_subdir.empty() ? NULL : config_subdir.c_str(), nullptr, get_checkpoints))
     {
       return false;
     }

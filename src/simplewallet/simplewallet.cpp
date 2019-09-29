@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+
+// Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
 //
@@ -1729,7 +1730,7 @@ bool simple_wallet::unblackball(const std::vector<std::string> &args)
   std::pair<uint64_t, uint64_t> output;
   if (args.size() != 1)
   {
-    fail_msg_writer() << tr("usage: mark_output_spent <amount>/<offset>");
+    fail_msg_writer() << tr("usage: mark_output_unspent <amount>/<offset>");
     return true;
   }
 
@@ -1745,7 +1746,7 @@ bool simple_wallet::unblackball(const std::vector<std::string> &args)
   }
   catch (const std::exception &e)
   {
-    fail_msg_writer() << tr("Failed to mark output spent: ") << e.what();
+    fail_msg_writer() << tr("Failed to mark output unspent: ") << e.what();
   }
 
   return true;
@@ -1771,7 +1772,7 @@ bool simple_wallet::blackballed(const std::vector<std::string> &args)
     if (m_wallet->is_output_blackballed(output))
       message_writer() << tr("Spent: ") << output.first << "/" << output.second;
     else
-      message_writer() << tr("Not Spent: ") << output.first << "/" << output.second;
+      message_writer() << tr("Not spent: ") << output.first << "/" << output.second;
   }
   catch (const std::exception &e)
   {
@@ -4709,8 +4710,6 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
   if (!try_connect_to_daemon())
     return true;
 
-  SCOPED_WALLET_UNLOCK();
-
   std::vector<std::string> local_args = args_;
 
   std::set<uint32_t> subaddr_indices;
@@ -4929,6 +4928,8 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
        return true;
      }
   }
+
+  SCOPED_WALLET_UNLOCK();
 
   try
   {
@@ -7044,12 +7045,6 @@ bool simple_wallet::run()
 void simple_wallet::stop()
 {
   m_cmd_binder.stop_handling();
-
-  m_idle_run.store(false, std::memory_order_relaxed);
-  m_wallet->stop();
-  // make the background refresh thread quit
-  boost::unique_lock<boost::mutex> lock(m_idle_mutex);
-  m_idle_cond.notify_one();
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::account(const std::vector<std::string> &args/* = std::vector<std::string>()*/)

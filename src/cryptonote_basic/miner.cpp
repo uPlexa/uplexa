@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+
+// Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
 //
@@ -201,7 +202,7 @@ namespace cryptonote
         float hr = static_cast<float>(total_hr)/static_cast<float>(m_last_hash_rates.size());
         const auto flags = std::cout.flags();
         const auto precision = std::cout.precision();
-        std::cout << "hashrate: " << std::setprecision(4) << std::fixed << hr << flags << precision << ENDL;
+        std::cout << "hashrate: " << std::setprecision(4) << std::fixed << hr << std::setiosflags(flags) << std::setprecision(precision) << ENDL;
       }
     }
     m_last_hr_merge_time = misc_utils::get_tick_count();

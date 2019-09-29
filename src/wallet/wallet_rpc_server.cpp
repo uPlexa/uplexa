@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+
+// Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
 //
@@ -981,6 +982,8 @@ namespace tools
     for (auto &ptx: ptxs)
     {
       res.tx_hash_list.push_back(epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(ptx.tx)));
+      if (req.get_tx_keys)
+        res.tx_key_list.push_back(epee::string_tools::pod_to_hex(ptx.tx_key));
     }
 
     if (req.export_raw)
@@ -2911,6 +2914,11 @@ namespace tools
     {
       er.code = WALLET_RPC_ERROR_CODE_ADDRESS_INDEX_OUT_OF_BOUNDS;
       er.message = e.what();
+    }
+    catch (const error::signature_check_failed& e)
+    {
+        er.code = WALLET_RPC_ERROR_CODE_WRONG_SIGNATURE;
+        er.message = e.what();
     }
     catch (const std::exception& e)
     {

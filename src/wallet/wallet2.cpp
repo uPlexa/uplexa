@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+// Copyright (c) 2018-2019, uPlexa Team
+// Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
 //
@@ -37,6 +38,8 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 #include "include_base_utils.h"
 using namespace epee;
 
@@ -5613,6 +5616,10 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
     ptx.construction_data = sd;
 
     txs.push_back(ptx);
+
+    // add tx keys only to ptx
+    txs.back().tx_key = tx_key;
+    txs.back().additional_tx_keys = additional_tx_keys;
   }
 
   // add key images
@@ -6991,6 +6998,8 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
           LOG_PRINT_L1("Selecting real output: " << td.m_global_output_index << " for " << print_money(amount));
         }
 
+        std::unordered_map<const char*, std::set<uint64_t>> picks;
+
         // while we still need more mixins
         uint64_t num_usable_outs = num_outs;
         bool allow_blackballed = false;
@@ -7005,7 +7014,7 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
             // outputs, we still need to reach the minimum ring size)
             if (allow_blackballed)
               break;
-            MINFO("Not enough output marked as spent, we'll allow outputs marked as spent");
+            MINFO("Not enough output not marked as spent, we'll allow outputs marked as spent");
             allow_blackballed = true;
             num_usable_outs = num_outs;
           }
@@ -7089,10 +7098,14 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
           }
           seen_indices.emplace(i);
 
-          LOG_PRINT_L2("picking " << i << " as " << type);
+          picks[type].insert(i);
           req.outputs.push_back({amount, i});
           ++num_found;
         }
+
+        for (const auto &pick: picks)
+          MDEBUG("picking " << pick.first << " outputs: " <<
+              boost::join(pick.second | boost::adaptors::transformed([](uint64_t out){return std::to_string(out);}), " "));
 
         // if we had enough unusable outputs, we might fall off here and still
         // have too few outputs, so we stuff with one to keep counts good, and
@@ -7109,8 +7122,15 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
           [](const get_outputs_out &a, const get_outputs_out &b) { return a.index < b.index; });
     }
 
-    for (auto i: req.outputs)
-      LOG_PRINT_L1("asking for output " << i.index << " for " << print_money(i.amount));
+    if (ELPP->vRegistry()->allowed(el::Level::Debug, MONERO_DEFAULT_LOG_CATEGORY))
+    {
+      std::map<uint64_t, std::set<uint64_t>> outs;
+      for (const auto &i: req.outputs)
+        outs[i.amount].insert(i.index);
+      for (const auto &o: outs)
+        MDEBUG("asking for outputs with amount " << print_money(o.first) << ": " <<
+            boost::join(o.second | boost::adaptors::transformed([](uint64_t out){return std::to_string(out);}), " "));
+    }
 
     // get the keys for those
     m_daemon_rpc_mutex.lock();
@@ -10568,7 +10588,7 @@ uint64_t wallet2::import_key_images(const std::vector<std::pair<crypto::key_imag
         + boost::lexical_cast<std::string>(signed_key_images.size()) + ", key image " + epee::string_tools::pod_to_hex(key_image));
 
     THROW_WALLET_EXCEPTION_IF(!crypto::check_ring_signature((const crypto::hash&)key_image, key_image, pkeys, &signature),
-        error::wallet_internal_error, "Signature check failed: input " + boost::lexical_cast<std::string>(n) + "/"
+        error::signature_check_failed, boost::lexical_cast<std::string>(n) + "/"
         + boost::lexical_cast<std::string>(signed_key_images.size()) + ", key image " + epee::string_tools::pod_to_hex(key_image)
         + ", signature " + epee::string_tools::pod_to_hex(signature) + ", pubkey " + epee::string_tools::pod_to_hex(*pkeys[0]));
 

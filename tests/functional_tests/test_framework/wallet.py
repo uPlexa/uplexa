@@ -1,21 +1,22 @@
 # Copyright (c) 2018 uPlexa Team
-# 
+# Copyright (c) 2014-2019, The Monero Project
+#
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without modification, are
 # permitted provided that the following conditions are met:
-# 
+#
 # 1. Redistributions of source code must retain the above copyright notice, this list of
 #    conditions and the following disclaimer.
-# 
+#
 # 2. Redistributions in binary form must reproduce the above copyright notice, this list
 #    of conditions and the following disclaimer in the documentation and/or other
 #    materials provided with the distribution.
-# 
+#
 # 3. Neither the name of the copyright holder nor the names of its contributors may be
 #    used to endorse or promote products derived from this software without specific
 #    prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -28,7 +29,7 @@
 
 """Daemon class to make rpc calls and store state."""
 
-from .rpc import JSONRPC 
+from .rpc import JSONRPC
 
 class Wallet(object):
 
@@ -55,12 +56,12 @@ class Wallet(object):
                 'mixin' : ringsize - 1,
                 'get_tx_key' : True
             },
-            'jsonrpc': '2.0', 
-            'id': '0'    
+            'jsonrpc': '2.0',
+            'id': '0'
         }
         if(len(payment_id) > 0):
             transfer['params'].update({'payment_id' : payment_id})
-        return self.rpc.send_request(transfer)   
+        return self.rpc.send_request(transfer)
 
     def transfer_split(self, destinations, ringsize=7, payment_id=''):
         print(destinations)
@@ -72,12 +73,12 @@ class Wallet(object):
                 "get_tx_key" : True,
                 "new_algorithm" : True
             },
-            "jsonrpc": "2.0", 
-            "id": "0"    
+            "jsonrpc": "2.0",
+            "id": "0"
         }
         if(len(payment_id) > 0):
             transfer['params'].update({'payment_id' : payment_id})
-        return self.rpc.send_request(transfer)   
+        return self.rpc.send_request(transfer)
 
     def create_wallet(self, index=''):
         create_wallet = {
@@ -87,7 +88,7 @@ class Wallet(object):
                 'password' : '',
                 'language' : 'English'
             },
-            'jsonrpc': '2.0', 
+            'jsonrpc': '2.0',
             'id': '0'
         }
         return self.rpc.send_request(create_wallet)
@@ -95,7 +96,7 @@ class Wallet(object):
     def get_balance(self):
         get_balance = {
             'method': 'get_balance',
-            'jsonrpc': '2.0', 
+            'jsonrpc': '2.0',
             'id': '0'
         }
         return self.rpc.send_request(get_balance)
@@ -103,8 +104,8 @@ class Wallet(object):
     def sweep_dust(self):
         sweep_dust = {
             'method': 'sweep_dust',
-            'jsonrpc': '2.0', 
-            'id': '0'   
+            'jsonrpc': '2.0',
+            'id': '0'
         }
         return self.rpc.send_request(sweep_dust)
 
@@ -114,7 +115,7 @@ class Wallet(object):
             'params' : {
                 'address' : ''
             },
-            'jsonrpc': '2.0', 
+            'jsonrpc': '2.0',
             'id': '0'
         }
         return self.rpc.send_request(sweep_all)

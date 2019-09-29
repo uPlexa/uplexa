@@ -1,4 +1,5 @@
-# Copyright (c) 2018, uPlexa Team
+
+# Copyright (c) 2014-2019, The Monero Project
 #
 # All rights reserved.
 #
@@ -123,3 +124,7 @@ SET_PROPERTY(SOURCE memwipe.cpp PROPERTY COMPILE_FLAGS -Ofast)
 add_test(
   NAME    unit_tests
   COMMAND unit_tests --data-dir "${TEST_DATA_DIR}")
+
+add_executable(test_notifier test_notifier.cpp)
+target_link_libraries(test_notifier ${EXTRA_LIBRARIES})
+set_property(TARGET test_notifier PROPERTY FOLDER "tests")

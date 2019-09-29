@@ -1,4 +1,5 @@
-// Copyright (c) 2018, uPlexa Team
+
+// Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
 //
@@ -2037,7 +2038,7 @@ namespace nodetool
     char lanAddress[64];
     result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress);
     freeUPNPDevlist(deviceList);
-    if (result != 0) {
+    if (result > 0) {
       if (result == 1) {
         std::ostringstream portString;
         portString << port;
@@ -2083,7 +2084,7 @@ namespace nodetool
     char lanAddress[64];
     result = UPNP_GetValidIGD(deviceList, &urls, &igdData, lanAddress, sizeof lanAddress);
     freeUPNPDevlist(deviceList);
-    if (result != 0) {
+    if (result > 0) {
       if (result == 1) {
         std::ostringstream portString;
         portString << port;

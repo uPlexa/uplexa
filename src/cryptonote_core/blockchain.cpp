@@ -93,6 +93,7 @@ static const struct {
   { 9, 2, 0, 1535889548 },
   { 10, 52279, 0, 1543132500 },
   { 11, 162090, 0, 1555439177 },
+  { 12, 295550, 0, 1572134400},
 };
 static const uint64_t mainnet_hard_fork_version_1_till = 1;
 
@@ -107,6 +108,7 @@ static const struct {
   { 9, 2, 0, 1533297600 },
   { 10, 10, 0, 1543132500 },
   { 11, 250, 0, 1555439177 },
+  { 12, 2700, 0, 1572134400},
 };
 static const uint64_t testnet_hard_fork_version_1_till = 1;
 
@@ -121,6 +123,7 @@ static const struct {
   { 9, 2, 0, 1537821771 },
   { 10, 3, 0, 1543132500 },
   { 11, 250, 0, 1555439177 },
+  { 12, 260, 0, 1572134400 },
 };
 
 //------------------------------------------------------------------
@@ -2915,7 +2918,7 @@ uint64_t Blockchain::get_dynamic_base_fee(uint64_t block_reward, size_t median_b
     return lo;
   }
 
-  const uint64_t fee_base = version >= 5 ? DYNAMIC_FEE_PER_KB_BASE_FEE_V5 : DYNAMIC_FEE_PER_KB_BASE_FEE;
+  const uint64_t fee_base = (version >=12 ? DYNAMIC_FEE_PER_KB_BASE_FEE_V12 : (version >= 5 ? DYNAMIC_FEE_PER_KB_BASE_FEE_V5 : DYNAMIC_FEE_PER_KB_BASE_FEE));
 
   uint64_t unscaled_fee_base = (fee_base * min_block_weight / median_block_weight);
   lo = mul128(unscaled_fee_base, block_reward, &hi);

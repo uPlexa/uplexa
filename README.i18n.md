@@ -3,7 +3,7 @@ uPlexa daemon internationalization
 
 The uPlexa command line tools can be translated in various languages. If you wish to contribute and need help/support, contact the uPlexa Team, come chat on `#translations` (Discord) - https://discord.gg/a7mAQwJ
 
-In order to use the same translation workflow as the [Monero Core GUI](https://github.com/monero-project/monero-gui), they use Qt Linguist translation files.  However, to avoid the dependencies on Qt this normally implies, they use a custom loader to read those files at runtime.
+In order to use the same translation workflow as the [uPlexa Core GUI](https://github.com/uPlexa/uplexa-gui), they use Qt Linguist translation files.  However, to avoid the dependencies on Qt this normally implies, they use a custom loader to read those files at runtime.
 
 ### Tools for translators
 

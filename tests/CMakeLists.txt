@@ -86,7 +86,7 @@ add_subdirectory(performance_tests)
 add_subdirectory(core_proxy)
 add_subdirectory(unit_tests)
 add_subdirectory(difficulty)
-add_subdirectory(hash)
+# add_subdirectory(hash)
 add_subdirectory(net_load_tests)
 if (BUILD_GUI_DEPS)
   add_subdirectory(libwallet_api_tests)
@@ -94,29 +94,29 @@ endif()
 
 # add_subdirectory(daemon_tests)
 
-set(hash_targets_sources
-  hash-target.cpp)
+#set(hash_targets_sources
+#  hash-target.cpp)
 
-set(hash_targets_headers)
+#set(hash_targets_headers)
 
-add_executable(hash-target-tests
-  ${hash_targets_sources}
-  ${hash_targets_headers})
-target_link_libraries(hash-target-tests
-  PRIVATE
-    cryptonote_core)
-set_property(TARGET hash-target-tests
-  PROPERTY
-    FOLDER "${folder}")
+#add_executable(hash-target-tests
+#  ${hash_targets_sources}
+#  ${hash_targets_headers})
+#target_link_libraries(hash-target-tests
+#  PRIVATE
+#    cryptonote_core)
+#set_property(TARGET hash-target-tests
+#  PROPERTY
+#    FOLDER "${folder}")
 
-add_test(
-  NAME    hash-target
-  COMMAND hash-target-tests)
+#add_test(
+#  NAME    hash-target
+#  COMMAND hash-target-tests)
 
 set(enabled_tests
     core_tests
     difficulty
-    hash
+#    hash
     performance_tests
     core_proxy
     fuzz

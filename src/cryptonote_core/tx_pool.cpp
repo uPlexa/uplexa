@@ -382,7 +382,7 @@ namespace cryptonote
         MINFO("Pruning tx " << txid << " from txpool: weight: " << meta.weight << ", fee/byte: " << it->first.first);
         m_blockchain.remove_txpool_tx(txid);
         m_txpool_weight -= meta.weight;
-        remove_transaction_keyimages(tx, txid);
+        remove_transaction_keyimages(tx);
         MINFO("Pruned tx " << txid << " from txpool: weight: " << meta.weight << ", fee/byte: " << it->first.first);
         m_txs_by_fee_and_receive_time.erase(it--);
         changed = true;

@@ -103,10 +103,7 @@ namespace cryptonote
     LOG_PRINT_L1("Creating block template: reward " << block_reward <<
       ", fee " << fee);
 #endif
-    if (hard_fork_version >= 12) {
-      block_reward = block_reward / 2;
-    }
-
+//halving should be going here...
     block_reward += fee;
 
     // from hard fork 2, we cut out the low significant digits. This makes the tx smaller, and

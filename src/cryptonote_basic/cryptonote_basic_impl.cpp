@@ -105,7 +105,9 @@ namespace cryptonote {
     {
       base_reward = FINAL_SUBSIDY_PER_MINUTE*target_minutes;
     }
-
+   if(version>=12){
+     base_reward = base_reward / 2;
+   }
 
     //make it soft
     if (median_weight < full_reward_zone) {

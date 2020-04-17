@@ -405,12 +405,11 @@ namespace nodetool
     }
     else
     {
-      full_addrs.insert("172.31.33.138:21060");
-      full_addrs.insert("192.95.53.80:21010");
-      full_addrs.insert("192.95.53.83:21060");
-      full_addrs.insert("149.56.89.162:21060");
-      full_addrs.insert("51.38.93.152:21060");
-      full_addrs.insert("45.33.28.61:21060");
+     full_addrs.insert("138.201.129.138:21060");
+     full_addrs.insert("212.86.114.135:21060");
+     full_addrs.insert("58.185.155.109:21060");
+     full_addrs.insert("66.228.41.174:21060");
+     full_addrs.insert("178.33.66.94:21060");
     }
     return full_addrs;
   }

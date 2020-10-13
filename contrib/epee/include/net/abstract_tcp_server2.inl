@@ -399,11 +399,9 @@ PRAGMA_WARNING_DISABLE_VS(4355)
       //if no handlers were called
       //TODO: Maybe we need to have have critical section + event + callback to upper protocol to
       //ask it inside(!) critical region if we still able to go in event wait...
-<<<<<<< HEAD
-      size_t cnt = socket_.get_io_service().poll_one();
-=======
+
       size_t cnt = GET_IO_SERVICE(socket_).poll_one();
->>>>>>> e43fa305... epee: fix build with boost 1.70.0 /monero#5328
+
       if(!cnt)
         misc_utils::sleep_no_w(0);
     }

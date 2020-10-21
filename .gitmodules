@@ -7,5 +7,8 @@
         url = https://github.com/monero-project/miniupnp
         branch = monero
 [submodule "external/rapidjson"]
-        path = external/rapidjson
-        url = https://github.com/Tencent/rapidjson
+	path = external/rapidjson
+	url = https://github.com/Tencent/rapidjson
+[submodule "external/trezor-common"]
+	path = external/trezor-common
+	url = https://github.com/trezor/trezor-common.git

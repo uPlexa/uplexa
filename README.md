@@ -1,6 +1,6 @@
 # uPlexa
 
-Copyright (c) 2018-2019 uPlexa.  
+Copyright (c) 2018-2020 uPlexa.  
 Copyright (c) 2014-2019 The Monero Project.
 
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
@@ -10,15 +10,21 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 - Web: [uplexa.com](https://uplexa.com)
 - Mail: [uplexa@protonmail.com](mailto:uplexa@protonmail.com)
 - GitHub: [https://github.com/uPlexa/uplexa](https://github.com/uPlexa/uplexa)
-- Discord: (https://discord.gg/a7mAQwJ)
+- Discord: [https://discord.gg/a7mAQwJ](https://discord.gg/a7mAQwJ)
+- Telegram: [https://t.me/uplexaOfficial](https://t.me/uplexaOfficial)
 
 ## Vulnerability response
 
-- Our Vulnerability Response Process encourages responsible disclosure. Please send a message to uplexa@protonmail.com with "vuln" somewhere within the title, or reach out to QuantumL3aper in Discord.
+- Our Vulnerability Response Process encourages responsible disclosure. Please send a message to uplexa@protonmail.com with "vuln" somewhere within the title, or reach out to QuantumL3aper in Discord or Telegram (make sure to go through the appropriate channels above.
 
 ## Announcements
 
-- Subscribe to our Reddit for important announcements regarding uPlexa (https://www.reddit.com/r/uPlexa/)
+- Subscribe to our email newsletter to stay up-to-date with the latest news and announcements. You may also subscribe to us on Delta or Blockfolio, and be sure to follow us on twitter!
+
+- Newsletter: [https://www.subscribepage.com/uplexa](https://www.subscribepage.com/uplexa)
+- Delta: [https://delta.app/en/crypto/upx/uplexacoin](https://delta.app/en/crypto/upx/uplexacoin)
+- BlockFolio: [https://blockfolio.com/coin/UPX/signal/sN4HemVcf1](https://blockfolio.com/coin/UPX/signal/sN4HemVcf1)
+- Twitter: [https://twitter.com/uPlexaCoin](https://twitter.com/uPlexaCoin) 
 
 ## Build
 

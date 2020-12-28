@@ -1,22 +1,22 @@
-// Copyright (c) 2017-2018, uPlexa Team
+// Copyright (c) 2018-2020, uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -48,13 +48,14 @@
 #include "crypto/crypto.h"
 #include "crypto/chacha.h"
 #include "ringct/rctTypes.h"
+#include "cryptonote_config.h"
 
 
 #ifndef USE_DEVICE_LEDGER
 #define USE_DEVICE_LEDGER 1
 #endif
 
-#if !defined(HAVE_HIDAPI) 
+#if !defined(HAVE_HIDAPI)
 #undef  USE_DEVICE_LEDGER
 #define USE_DEVICE_LEDGER 0
 #endif
@@ -100,8 +101,15 @@ namespace hw {
         enum device_type
         {
           SOFTWARE = 0,
-          LEDGER = 1
+          LEDGER = 1,
+          TREZOR = 2
         };
+
+        enum device_protocol_t {
+             PROTOCOL_DEFAULT,
+             PROTOCOL_PROXY,     // Originally defined by Ledger
+             PROTOCOL_COLD,      // Originally defined by Trezor
+         };
 
 
         /* ======================================================================= */
@@ -121,10 +129,12 @@ namespace hw {
 
         virtual device_type get_type() const = 0;
 
+        virtual device_protocol_t device_protocol() const { return PROTOCOL_DEFAULT; };
+
 
         /* ======================================================================= */
         /*  LOCKER                                                                 */
-        /* ======================================================================= */ 
+        /* ======================================================================= */
         virtual void lock(void) = 0;
         virtual void unlock(void) = 0;
         virtual bool try_lock(void) = 0;
@@ -205,6 +215,12 @@ namespace hw {
 
         virtual bool  close_tx(void) = 0;
 
+        virtual bool  has_ki_cold_sync(void) const { return false; }
+        virtual bool  has_tx_cold_sign(void) const { return false; }
+
+        virtual void  set_network_type(cryptonote::network_type network_type) { }
+
+
     protected:
         device_mode mode;
     } ;
@@ -228,4 +244,3 @@ namespace hw {
     device& get_device(const std::string & device_descriptor);
     bool register_device(const std::string & device_name, device * hw_device);
 }
-

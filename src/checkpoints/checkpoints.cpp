@@ -230,48 +230,6 @@ namespace cryptonote
 
   bool checkpoints::load_checkpoints_from_dns(network_type nettype)
   {
-    std::vector<std::string> records;
-
-    // All four MoneroPulse domains have DNSSEC on and valid - Removed pulse checkpoints
-    static const std::vector<std::string> dns_urls = { ""
-    };
-
-    static const std::vector<std::string> testnet_dns_urls = { ""
-    };
-
-    static const std::vector<std::string> stagenet_dns_urls = { ""
-    };
-
-    if (!tools::dns_utils::load_txt_records_from_dns(records, nettype == TESTNET ? testnet_dns_urls : nettype == STAGENET ? stagenet_dns_urls : dns_urls))
-      return true; // why true ?
-
-    for (const auto& record : records)
-    {
-      auto pos = record.find(":");
-      if (pos != std::string::npos)
-      {
-        uint64_t height;
-        crypto::hash hash;
-
-        // parse the first part as uint64_t,
-        // if this fails move on to the next record
-        std::stringstream ss(record.substr(0, pos));
-        if (!(ss >> height))
-        {
-    continue;
-        }
-
-        // parse the second part as crypto::hash,
-        // if this fails move on to the next record
-        std::string hashStr = record.substr(pos + 1);
-        if (!epee::string_tools::parse_tpod_from_hex_string(hashStr, hash))
-        {
-    continue;
-        }
-
-        ADD_CHECKPOINT(height, hashStr);
-      }
-    }
     return true;
   }
 

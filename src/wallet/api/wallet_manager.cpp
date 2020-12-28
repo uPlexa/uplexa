@@ -1,4 +1,4 @@
-
+// Copyright (c) 2018-2020, The uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
@@ -63,7 +63,7 @@ Wallet *WalletManagerImpl::openWallet(const std::string &path, const std::string
     WalletImpl * wallet = new WalletImpl(nettype, kdf_rounds);
     wallet->open(path, password);
     //Refresh addressBook
-    wallet->addressBook()->refresh(); 
+    wallet->addressBook()->refresh();
     return wallet;
 }
 
@@ -102,7 +102,7 @@ Wallet *WalletManagerImpl::recoveryWallet(const std::string &path,
 Wallet *WalletManagerImpl::createWalletFromKeys(const std::string &path,
                                                 const std::string &password,
                                                 const std::string &language,
-                                                NetworkType nettype, 
+                                                NetworkType nettype,
                                                 uint64_t restoreHeight,
                                                 const std::string &addressString,
                                                 const std::string &viewKeyString,
@@ -332,7 +332,7 @@ std::string WalletManagerImpl::resolveOpenAlias(const std::string &address, bool
     return addresses.front();
 }
 
-std::tuple<bool, std::string, std::string, std::string, std::string> WalletManager::checkUpdates(const std::string &software, std::string subdir)
+std::tuple<bool, std::string, std::string, std::string, std::string> WalletManagerBase::checkUpdates(const std::string &software, std::string subdir)
 {
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
@@ -359,7 +359,7 @@ std::tuple<bool, std::string, std::string, std::string, std::string> WalletManag
 
 
 ///////////////////// WalletManagerFactory implementation //////////////////////
-WalletManager *WalletManagerFactory::getWalletManager()
+WalletManagerBase *WalletManagerFactory::getWalletManager()
 {
 
     static WalletManagerImpl * g_walletManager = nullptr;

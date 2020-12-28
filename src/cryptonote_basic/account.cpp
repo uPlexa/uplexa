@@ -1,22 +1,22 @@
 
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -26,7 +26,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <fstream>
@@ -140,6 +140,15 @@ DISABLE_VS_WARNINGS(4244 4345)
     m_creation_timestamp = 0;
   }
   //-----------------------------------------------------------------
+  void account_base::deinit()
+  {
+    try{
+      m_keys.get_device().disconnect();
+    } catch (const std::exception &e){
+      MERROR("Device disconnect exception: " << e.what());
+    }
+  }
+  //-----------------------------------------------------------------
   void account_base::forget_spend_key()
   {
     m_keys.m_spend_secret_key = crypto::secret_key();
@@ -207,11 +216,16 @@ DISABLE_VS_WARNINGS(4244 4345)
   void account_base::create_from_device(hw::device &hwdev)
   {
     m_keys.set_device(hwdev);
-    MCDEBUG("ledger", "device type: "<<typeid(hwdev).name());
-    hwdev.init();
-    hwdev.connect();
-    hwdev.get_public_address(m_keys.m_account_address);
-    hwdev.get_secret_keys(m_keys.m_view_secret_key, m_keys.m_spend_secret_key);
+    MCDEBUG("device", "device type: "<<typeid(hwdev).name());
+    CHECK_AND_ASSERT_THROW_MES(hwdev.init(), "Device init failed");
+    CHECK_AND_ASSERT_THROW_MES(hwdev.connect(), "Device connect failed");
+    try {
+      CHECK_AND_ASSERT_THROW_MES(hwdev.get_public_address(m_keys.m_account_address), "Cannot get a device address");
+      CHECK_AND_ASSERT_THROW_MES(hwdev.get_secret_keys(m_keys.m_view_secret_key, m_keys.m_spend_secret_key), "Cannot get device secret");
+    } catch (const std::exception &e){
+      hwdev.disconnect();
+      throw;
+    }
     struct tm timestamp = {0};
     timestamp.tm_year = 2018 - 1900;  // year 2018
     timestamp.tm_mon = 10 - 1;  // month october

@@ -1,22 +1,22 @@
 // Copyright (c) 2016-2018, uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -222,6 +222,8 @@ void toJsonValue(rapidjson::Document& doc, const cryptonote::transaction& tx, ra
 
   INSERT_INTO_JSON_OBJECT(val, doc, version, tx.version);
   INSERT_INTO_JSON_OBJECT(val, doc, unlock_time, tx.unlock_time);
+  INSERT_INTO_JSON_OBJECT(val, doc, output_unlock_times, tx.output_unlock_times);
+  INSERT_INTO_JSON_OBJECT(val, doc, is_deregister, tx.is_deregister);
   INSERT_INTO_JSON_OBJECT(val, doc, inputs, tx.vin);
   INSERT_INTO_JSON_OBJECT(val, doc, outputs, tx.vout);
   INSERT_INTO_JSON_OBJECT(val, doc, extra, tx.extra);
@@ -239,6 +241,8 @@ void fromJsonValue(const rapidjson::Value& val, cryptonote::transaction& tx)
 
   GET_FROM_JSON_OBJECT(val, tx.version, version);
   GET_FROM_JSON_OBJECT(val, tx.unlock_time, unlock_time);
+  GET_FROM_JSON_OBJECT(val, tx.output_unlock_times, output_unlock_times);
+  GET_FROM_JSON_OBJECT(val, tx.is_deregister, is_deregister);
   GET_FROM_JSON_OBJECT(val, tx.vin, inputs);
   GET_FROM_JSON_OBJECT(val, tx.vout, outputs);
   GET_FROM_JSON_OBJECT(val, tx.extra, extra);
@@ -1193,7 +1197,9 @@ void toJsonValue(rapidjson::Document& doc, const cryptonote::rpc::DaemonInfo& in
   INSERT_INTO_JSON_OBJECT(val, doc, incoming_connections_count, info.incoming_connections_count);
   INSERT_INTO_JSON_OBJECT(val, doc, white_peerlist_size, info.white_peerlist_size);
   INSERT_INTO_JSON_OBJECT(val, doc, grey_peerlist_size, info.grey_peerlist_size);
+  INSERT_INTO_JSON_OBJECT(val, doc, mainnet, info.mainnet);
   INSERT_INTO_JSON_OBJECT(val, doc, testnet, info.testnet);
+  INSERT_INTO_JSON_OBJECT(val, doc, stagenet, info.stagenet);
   INSERT_INTO_JSON_OBJECT(val, doc, nettype, info.nettype);
   INSERT_INTO_JSON_OBJECT(val, doc, top_block_hash, info.top_block_hash);
   INSERT_INTO_JSON_OBJECT(val, doc, cumulative_difficulty, info.cumulative_difficulty);
@@ -1222,7 +1228,9 @@ void fromJsonValue(const rapidjson::Value& val, cryptonote::rpc::DaemonInfo& inf
   GET_FROM_JSON_OBJECT(val, info.incoming_connections_count, incoming_connections_count);
   GET_FROM_JSON_OBJECT(val, info.white_peerlist_size, white_peerlist_size);
   GET_FROM_JSON_OBJECT(val, info.grey_peerlist_size, grey_peerlist_size);
+  GET_FROM_JSON_OBJECT(val, info.mainnet, mainnet);
   GET_FROM_JSON_OBJECT(val, info.testnet, testnet);
+  GET_FROM_JSON_OBJECT(val, info.stagenet, stagenet);
   GET_FROM_JSON_OBJECT(val, info.nettype, nettype);
   GET_FROM_JSON_OBJECT(val, info.top_block_hash, top_block_hash);
   GET_FROM_JSON_OBJECT(val, info.cumulative_difficulty, cumulative_difficulty);
@@ -1231,6 +1239,29 @@ void fromJsonValue(const rapidjson::Value& val, cryptonote::rpc::DaemonInfo& inf
   GET_FROM_JSON_OBJECT(val, info.block_size_median, block_size_median);
   GET_FROM_JSON_OBJECT(val, info.block_weight_median, block_weight_median);
   GET_FROM_JSON_OBJECT(val, info.start_time, start_time);
+}
+
+void toJsonValue(rapidjson::Document& doc, const cryptonote::rpc::output_distribution& dist, rapidjson::Value& val)
+{
+  val.SetObject();
+
+  INSERT_INTO_JSON_OBJECT(val, doc, distribution, dist.data.distribution);
+  INSERT_INTO_JSON_OBJECT(val, doc, amount, dist.amount);
+  INSERT_INTO_JSON_OBJECT(val, doc, start_height, dist.data.start_height);
+  INSERT_INTO_JSON_OBJECT(val, doc, base, dist.data.base);
+}
+
+void fromJsonValue(const rapidjson::Value& val, cryptonote::rpc::output_distribution& dist)
+{
+  if (!val.IsObject())
+  {
+    throw WRONG_TYPE("json object");
+  }
+
+  GET_FROM_JSON_OBJECT(val, dist.data.distribution, distribution);
+  GET_FROM_JSON_OBJECT(val, dist.amount, amount);
+  GET_FROM_JSON_OBJECT(val, dist.data.start_height, start_height);
+  GET_FROM_JSON_OBJECT(val, dist.data.base, base);
 }
 
 }  // namespace json

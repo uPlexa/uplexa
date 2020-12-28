@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019, uPlexa Team
+// Copyright (c) 2018-2020, The uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
@@ -45,20 +45,44 @@
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER          0
 #define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            60
-#define CURRENT_TRANSACTION_VERSION                     2
+#define CURRENT_TRANSACTION_VERSION                     3
 #define CURRENT_BLOCK_MAJOR_VERSION                     1
 #define CURRENT_BLOCK_MINOR_VERSION                     0
 #define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT              60*60*2
 #define CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE             10
 
 #define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V2           60*24
+
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW               60
 #define BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V2            12
+
+///////////////////////
+
+#define CRYPTONOTE_TX_DEFAULT_MIX 10
+
+#define STAKING_REQUIREMENT_LOCK_BLOCKS_EXCESS          20
+#define STAKING_PORTIONS                                UINT64_C(0xfffffffffffffffc)
+#define MAX_NUMBER_OF_CONTRIBUTORS                      4
+#define MIN_PORTIONS                                    (STAKING_PORTIONS / MAX_NUMBER_OF_CONTRIBUTORS)
+
+static_assert(STAKING_PORTIONS % MAX_NUMBER_OF_CONTRIBUTORS == 0, "Use a multiple of four, so that it divides easily by max number of contributors.");
+static_assert(STAKING_PORTIONS % 2 == 0, "Use a multiple of two, so that it divides easily by two contributors.");
+static_assert(STAKING_PORTIONS % 3 == 0, "Use a multiple of three, so that it divides easily by three contributors.");
+
+#define STAKING_AUTHORIZATION_EXPIRATION_WINDOW         (60*60*24*7*2)  // 2 weeks
+#define STAKING_AUTHORIZATION_EXPIRATION_AUTOSTAKE      (60*60*24*365*2) // 2 years
+
+#define UPTIME_PROOF_BUFFER_IN_SECONDS                  (5*60) // The acceptable window of time to accept a peer's uptime proof from its reported timestamp
+#define UPTIME_PROOF_FREQUENCY_IN_SECONDS               (60*60)
+#define UPTIME_PROOF_MAX_TIME_IN_SECONDS		(UPTIME_PROOF_FREQUENCY_IN_SECONDS * 2 + UPTIME_PROOF_BUFFER_IN_SECONDS)
+
+
+//////
 
 // MONEY_SUPPLY - total number coins to be generated
 #define MONEY_SUPPLY                                    ((uint64_t)(1050000000000))
 #define EMISSION_SPEED_FACTOR_PER_MINUTE                (22)
-#define FINAL_SUBSIDY_PER_MINUTE                        ((uint64_t)30) 
+#define FINAL_SUBSIDY_PER_MINUTE                        ((uint64_t)30)
 
 #define CRYPTONOTE_REWARD_BLOCKS_WINDOW                 100
 #define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2    60000 //size of block (bytes) after which reward for block calculated using block size
@@ -70,7 +94,7 @@
 #define COIN                                            ((uint64_t)1000000000000) // pow(10, 12)
 
 #define FEE_PER_KB_OLD                                  ((uint64_t)10000000000) // pow(10, 10)
-#define FEE_PER_KB                                      ((uint64_t)4000000000)
+#define FEE_PER_KB                                      ((uint64_t)4000000000) // Wtf?
 #define FEE_PER_BYTE                                    ((uint64_t)300000)
 #define DYNAMIC_FEE_PER_KB_BASE_FEE                     ((uint64_t)2000000000) // 2 * pow(10,9)
 #define DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD            ((uint64_t)10000000000000) // 10 * pow(10,12)
@@ -106,6 +130,8 @@
 
 #define CRYPTONOTE_MEMPOOL_TX_LIVETIME                    (86400*3) //seconds, three days
 #define CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME     604800 //seconds, one week
+
+#define MEMPOOL_PRUNE_DEREGISTER_LIFETIME               (2 * 60 * 60) // seconds, 2 hours
 
 #define COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT           1000
 
@@ -180,6 +206,13 @@ namespace config
     std::string const GENESIS_TX = "013c01ff0005090299f780a50b4a32bb073160d9ffd9ac3a56b8848cbd4fca1a32f2e3b4bdda32601e028df8a2887b6fc40c8a5f8d71da9071e4ec7e73d3dfebc30f1ee2aac5c7fbd56aac020223c639861f1259cf41dcbccdac8e68f5194e9a15e7817accd97fbe52239d832cd0860302736caee707092c733eeea0b019fac896c0f66829c57815fd8b68e8c53ebd3ed8c09a0c02d62dd9aa3ca0b9c4dfa5361a9a908f2207a0dba415e46db5110eb7e60f61186121018790193f157f45d642de432da453be81b1f2d2d358757823c0f48e444859491d";
     uint32_t const GENESIS_NONCE = 10000;
 
+    uint64_t const GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS = ((60 * 60 * 24 * 7) / DIFFICULTY_TARGET_V2);
+    std::string const GOVERNANCE_WALLET_ADDRESS[] =
+    {
+      "UPX1YovsJSNQG886X5oZwnj5Hg9v7XVDXHYATDV5PnT4ZeFz1qcM1mo2kwT6EQeHSM7vm7fCWwYRaETeaHcpy3K81ucqjGdFna", // hardfork v7-10
+      "UPX1YovsJSNQG886X5oZwnj5Hg9v7XVDXHYATDV5PnT4ZeFz1qcM1mo2kwT6EQeHSM7vm7fCWwYRaETeaHcpy3K81ucqjGdFna", // hardfork v7-10
+    };
+
   namespace testnet
   {
     uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 0x3e5e23;
@@ -195,6 +228,13 @@ namespace config
       } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff000509027d0274a9939602c664d5a8b5c6831bb42c192ae57bded8c57f44b1833cb1629c1e0274e4174f847da69a48c8269a29bdd2bc473355953fc1b5860cfa3352af01043dac020213f880e3314ad9c46e9f99cc822fb23fa0d1a802a17ad0c22688b0980bba5533d0860302146144a8b7cbee8157bfea25f7f35d3cd199f4a2b6e137b3fdaade89b2a03ddac09a0c027c1a3cadd582454fcdc48f4fb68679c507604a657fa572e8c9a53ee0583b025221016f1f500ab50b6d90a3f000211387b9bb9812f166de3e29ffd999c765b5fe28e6";
     uint32_t const GENESIS_NONCE = 10001;
+
+    uint64_t const GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS = 1000;
+    std::string const GOVERNANCE_WALLET_ADDRESS[] =
+    {
+      "UPTzc5eSdvfYQmShVDpzdT9EKRuD17YJmeC8du1bETMBLSw2wpkbExhMgdyWvvuqeNCU8sGwULnnWAzc8oB8tRiyUmPdHa6i1KZ",
+      "UPTzc5eSdvfYQmShVDpzdT9EKRuD17YJmeC8du1bETMBLSw2wpkbExhMgdyWvvuqeNCU8sGwULnnWAzc8oB8tRiyUmPdHa6i1KZ",
+    };
   }
 
   namespace stagenet
@@ -212,11 +252,26 @@ namespace config
       } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff000509027fc3209bb760e86e5996fbbb112aa6f779c916f8a8aa6a36462ebf0c46452cf41e026af2edccde0c0a2c2b278f37449ef2c84fee1807db5d28d5ea3ead550a861dcdac0202d82dee932e8c4bd93e3fc23d08d6a3d885223f4d7a30808ac30ba29b5c2c8940d0860302dae61c5da8ac7fc3f0cc213e22717490d6204f16bf6bdd678e1285445b8ff59bc09a0c02e01ad3b8474b725b524f0b5c6ea751d0e51a8749862a843fd29251e288ef949221013768a51d237d0143cf26317779096ba2df799c0bcd0ac0c6e26493edbef7d031";
     uint32_t const GENESIS_NONCE = 10002;
+
+    uint64_t const GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS = ((60 * 60 * 24 * 7) / DIFFICULTY_TARGET_V2);
+    std::string const GOVERNANCE_WALLET_ADDRESS[] =
+    {
+      "UPS1DiavDUqCaC1vP3m3yeLi7Pv4uBsoGgKrMj6Rka89YCGviex37t54FidnCJkEpXLmV2UoBd4zq1e5vE5yeUiG9eMJha4g3c",
+      "UPS1DiavDUqCaC1vP3m3yeLi7Pv4uBsoGgKrMj6Rka89YCGviex37t54FidnCJkEpXLmV2UoBd4zq1e5vE5yeUiG9eMJha4g3c",
+    };
   }
 }
 
 namespace cryptonote
 {
+  enum network_version // This shit isn't needed anymore.
+  {
+    network_version_7 = 7,
+    network_version_8,
+    network_version_13_utility_nodes, // Proof Of Stake w/ Utility Nodes
+    network_version_10_bulletproofs, // Bulletproofs, Utility Node Grace Registration Period, Batched Governance
+    network_version_11_swarms,
+  };
   enum network_type : uint8_t
   {
     MAINNET = 0,
@@ -227,19 +282,21 @@ namespace cryptonote
   };
   struct config_t
   {
-    uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX;
-    uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX;
-    uint64_t const CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX;
-    uint16_t const P2P_DEFAULT_PORT;
-    uint16_t const RPC_DEFAULT_PORT;
-    uint16_t const ZMQ_RPC_DEFAULT_PORT;
-    boost::uuids::uuid const NETWORK_ID;
-    std::string const GENESIS_TX;
-    uint32_t const GENESIS_NONCE;
+    uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX;
+    uint64_t CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX;
+    uint64_t CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX;
+    uint16_t P2P_DEFAULT_PORT;
+    uint16_t RPC_DEFAULT_PORT;
+    uint16_t ZMQ_RPC_DEFAULT_PORT;
+    boost::uuids::uuid NETWORK_ID;
+    std::string GENESIS_TX;
+    uint32_t GENESIS_NONCE;
+    uint64_t GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS;
+    std::string const *GOVERNANCE_WALLET_ADDRESS;
   };
-  inline const config_t& get_config(network_type nettype)
+  inline const config_t& get_config(network_type nettype, int hard_fork_version = 1)
   {
-    static const config_t mainnet = {
+    static config_t mainnet = {
       ::config::CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX,
       ::config::CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX,
       ::config::CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX,
@@ -248,9 +305,11 @@ namespace cryptonote
       ::config::ZMQ_RPC_DEFAULT_PORT,
       ::config::NETWORK_ID,
       ::config::GENESIS_TX,
-      ::config::GENESIS_NONCE
+      ::config::GENESIS_NONCE,
+      ::config::GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS,
+      &::config::GOVERNANCE_WALLET_ADDRESS[0],
     };
-    static const config_t testnet = {
+    static config_t testnet = {
       ::config::testnet::CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX,
       ::config::testnet::CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX,
       ::config::testnet::CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX,
@@ -259,9 +318,11 @@ namespace cryptonote
       ::config::testnet::ZMQ_RPC_DEFAULT_PORT,
       ::config::testnet::NETWORK_ID,
       ::config::testnet::GENESIS_TX,
-      ::config::testnet::GENESIS_NONCE
+      ::config::testnet::GENESIS_NONCE,
+      ::config::testnet::GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS,
+      &::config::testnet::GOVERNANCE_WALLET_ADDRESS[0],
     };
-    static const config_t stagenet = {
+    static config_t stagenet = {
       ::config::stagenet::CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX,
       ::config::stagenet::CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX,
       ::config::stagenet::CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX,
@@ -270,15 +331,41 @@ namespace cryptonote
       ::config::stagenet::ZMQ_RPC_DEFAULT_PORT,
       ::config::stagenet::NETWORK_ID,
       ::config::stagenet::GENESIS_TX,
-      ::config::stagenet::GENESIS_NONCE
+      ::config::stagenet::GENESIS_NONCE,
+      ::config::stagenet::GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS,
+      &::config::stagenet::GOVERNANCE_WALLET_ADDRESS[0],
     };
     switch (nettype)
-    {
-      case MAINNET: return mainnet;
-      case TESTNET: return testnet;
-      case STAGENET: return stagenet;
-      case FAKECHAIN: return mainnet;
-      default: throw std::runtime_error("Invalid network type");
-    }
-  };
-}
+     {
+       case MAINNET: case FAKECHAIN:
+       {
+         if (nettype == FAKECHAIN)
+           mainnet.GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS = 100;
+
+         return mainnet;
+       }
+
+       case TESTNET:
+       {
+         if (hard_fork_version <= 13)
+           testnet.GOVERNANCE_WALLET_ADDRESS = &::config::testnet::GOVERNANCE_WALLET_ADDRESS[0];
+         else
+           testnet.GOVERNANCE_WALLET_ADDRESS = &::config::testnet::GOVERNANCE_WALLET_ADDRESS[1];
+
+         return testnet;
+       }
+
+       case STAGENET:
+       {
+         if (hard_fork_version <= 13)
+           stagenet.GOVERNANCE_WALLET_ADDRESS = &::config::stagenet::GOVERNANCE_WALLET_ADDRESS[0];
+         else
+           stagenet.GOVERNANCE_WALLET_ADDRESS = &::config::stagenet::GOVERNANCE_WALLET_ADDRESS[1];
+
+         return stagenet;
+       }
+
+       default: throw std::runtime_error("Invalid network type");
+     }
+   };
+ }

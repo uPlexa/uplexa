@@ -1,5 +1,6 @@
 
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Project
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -207,6 +208,7 @@ const char* const LMDB_TXPOOL_BLOB = "txpool_blob";
 
 const char* const LMDB_HF_STARTING_HEIGHTS = "hf_starting_heights";
 const char* const LMDB_HF_VERSIONS = "hf_versions";
+const char* const LMDB_UTILITY_NODE_DATA = "utility_node_data";
 
 const char* const LMDB_PROPERTIES = "properties";
 
@@ -728,7 +730,7 @@ void BlockchainLMDB::add_block(const block& blk, size_t block_weight, const diff
   bi.bi_diff = cumulative_difficulty;
   bi.bi_hash = blk_hash;
   bi.bi_cum_rct = num_rct_outs;
-  if (blk.major_version >= 4)
+  if (blk.major_version >= 4 && m_height > 0)
   {
     uint64_t last_height = m_height-1;
     MDB_val_set(h, last_height);
@@ -1303,6 +1305,8 @@ void BlockchainLMDB::open(const std::string& filename, const int db_flags)
 
   lmdb_db_open(txn, LMDB_HF_VERSIONS, MDB_INTEGERKEY | MDB_CREATE, m_hf_versions, "Failed to open db handle for m_hf_versions");
 
+  lmdb_db_open(txn, LMDB_UTILITY_NODE_DATA, MDB_INTEGERKEY | MDB_CREATE, m_utility_node_data, "Failed to open db handle for m_utility_node_data");
+
   lmdb_db_open(txn, LMDB_PROPERTIES, MDB_CREATE, m_properties, "Failed to open db handle for m_properties");
 
   mdb_set_dupsort(txn, m_spent_keys, compare_hash32);
@@ -1473,6 +1477,8 @@ void BlockchainLMDB::reset()
   (void)mdb_drop(txn, m_hf_starting_heights, 0); // this one is dropped in new code
   if (auto result = mdb_drop(txn, m_hf_versions, 0))
     throw0(DB_ERROR(lmdb_error("Failed to drop m_hf_versions: ", result).c_str()));
+  if (auto result = mdb_drop(txn, m_utility_node_data, 0))
+   throw0(DB_ERROR(lmdb_error("Failed to drop m_utility_node_data: ", result).c_str()));
   if (auto result = mdb_drop(txn, m_properties, 0))
     throw0(DB_ERROR(lmdb_error("Failed to drop m_properties: ", result).c_str()));
 
@@ -2488,7 +2494,7 @@ uint64_t BlockchainLMDB::get_num_outputs(const uint64_t& amount) const
   return num_elems;
 }
 
-output_data_t BlockchainLMDB::get_output_key(const uint64_t& amount, const uint64_t& index)
+output_data_t BlockchainLMDB::get_output_key(const uint64_t& amount, const uint64_t& index) const
 {
   LOG_PRINT_L3("BlockchainLMDB::" << __func__);
   check_open();
@@ -2500,7 +2506,8 @@ output_data_t BlockchainLMDB::get_output_key(const uint64_t& amount, const uint6
   MDB_val_set(v, index);
   auto get_result = mdb_cursor_get(m_cur_output_amounts, &k, &v, MDB_GET_BOTH);
   if (get_result == MDB_NOTFOUND)
-    throw1(OUTPUT_DNE("Attempting to get output pubkey by index, but key does not exist"));
+  throw1(OUTPUT_DNE(std::string("Attempting to get output pubkey by index, but key does not exist: amount " +
+      std::to_string(amount) + ", index " + std::to_string(index)).c_str()));
   else if (get_result)
     throw0(DB_ERROR("Error attempting to retrieve an output pubkey from the db"));
 
@@ -3194,7 +3201,7 @@ void BlockchainLMDB::get_output_tx_and_index_from_global(const std::vector<uint6
   TXN_POSTFIX_RDONLY();
 }
 
-void BlockchainLMDB::get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs, bool allow_partial)
+void BlockchainLMDB::get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs, bool allow_partial) const
 {
   LOG_PRINT_L3("BlockchainLMDB::" << __func__);
   TIME_MEASURE_START(db3);
@@ -4363,6 +4370,72 @@ void BlockchainLMDB::migrate(const uint32_t oldversion)
   default:
     ;
   }
+}
+
+
+void BlockchainLMDB::set_utility_node_data(const std::string& data)
+{
+LOG_PRINT_L3("BlockchainLMDB::" << __func__);
+check_open();
+
+mdb_txn_cursors *m_cursors = &m_wcursors;
+CURSOR(utility_node_data);
+
+const uint64_t key = 1;
+MDB_val_set(k, key);
+
+MDB_val_copy<blobdata> blob(data);
+int result;
+result = mdb_cursor_put(m_cur_utility_node_data, &k, &blob, 0);
+if (result)
+  throw0(DB_ERROR(lmdb_error("Failed to add utility node data to db transaction: ", result).c_str()));
+}
+
+bool BlockchainLMDB::get_utility_node_data(std::string& data)
+{
+LOG_PRINT_L3("BlockchainLMDB::" << __func__);
+check_open();
+
+TXN_PREFIX_RDONLY();
+
+RCURSOR(utility_node_data);
+
+const uint64_t key = 1;
+MDB_val_set(k, key);
+MDB_val v;
+
+int result;
+result = mdb_cursor_get(m_cur_utility_node_data, &k, &v, MDB_FIRST);
+
+if (result == MDB_NOTFOUND)
+{
+  return false;
+}
+else if (result)
+{
+  throw0(DB_ERROR(lmdb_error("DB error attempting to get utility node data", result).c_str()));
+}
+
+data.assign(reinterpret_cast<const char*>(v.mv_data), v.mv_size);
+return true;
+}
+
+void BlockchainLMDB::clear_utility_node_data()
+{
+LOG_PRINT_L3("BlockchainLMDB::" << __func__);
+check_open();
+
+mdb_txn_cursors *m_cursors = &m_wcursors;
+CURSOR(utility_node_data);
+
+const uint64_t key = 1;
+MDB_val_set(k, key);
+
+int result;
+if ((result = mdb_cursor_get(m_cur_utility_node_data, &k, NULL, MDB_SET)))
+  return;
+if ((result = mdb_cursor_del(m_cur_utility_node_data, 0)))
+    throw1(DB_ERROR(lmdb_error("Failed to add removal of utility node data to db transaction: ", result).c_str()));
 }
 
 }  // namespace cryptonote

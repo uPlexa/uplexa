@@ -1,5 +1,5 @@
-
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Team
 //
 // All rights reserved.
 //
@@ -46,6 +46,7 @@ using namespace epee;
 #include "storages/http_abstract_invoke.h"
 #include "crypto/hash.h"
 #include "rpc/rpc_args.h"
+#include "rpc/rpc_handler.h"
 #include "core_rpc_server_error_codes.h"
 #include "p2p/net_node.h"
 #include "version.h"
@@ -55,7 +56,7 @@ using namespace epee;
 
 #define MAX_RESTRICTED_FAKE_OUTS_COUNT 40
 #define MAX_RESTRICTED_GLOBAL_FAKE_OUTS_COUNT 5000
-
+/*
 namespace
 {
   void add_reason(std::string &reasons, const char *reason)
@@ -65,7 +66,7 @@ namespace
     reasons += reason;
   }
 }
-
+*/
 namespace cryptonote
 {
 
@@ -134,7 +135,9 @@ namespace cryptonote
 
     auto rng = [](size_t len, uint8_t *ptr){ return crypto::rand(len, ptr); };
     return epee::http_server_impl_base<core_rpc_server, connection_context>::init(
-      rng, std::move(port), std::move(rpc_config->bind_ip), std::move(rpc_config->access_control_origins), std::move(http_login)
+      rng, std::move(port), std::move(rpc_config->bind_ip),
+      std::move(rpc_config->bind_ipv6_address), std::move(rpc_config->no_ipv6),
+      std::move(rpc_config->access_control_origins), std::move(http_login)
     );
   }
   //------------------------------------------------------------------------------------------------------------------------------
@@ -698,24 +701,25 @@ namespace cryptonote
     tx_verification_context tvc = AUTO_VAL_INIT(tvc);
     if(!m_core.handle_incoming_tx(tx_blob, tvc, false, false, req.do_not_relay) || tvc.m_verifivation_failed)
     {
-      res.status = "Failed";
-      res.reason = "";
-      if ((res.low_mixin = tvc.m_low_mixin))
-        add_reason(res.reason, "ring size too small");
-      if ((res.double_spend = tvc.m_double_spend))
-        add_reason(res.reason, "double spend");
-      if ((res.invalid_input = tvc.m_invalid_input))
-        add_reason(res.reason, "invalid input");
-      if ((res.invalid_output = tvc.m_invalid_output))
-        add_reason(res.reason, "invalid output");
-      if ((res.too_big = tvc.m_too_big))
-        add_reason(res.reason, "too big");
-      if ((res.overspend = tvc.m_overspend))
-        add_reason(res.reason, "overspend");
-      if ((res.fee_too_low = tvc.m_fee_too_low))
-        add_reason(res.reason, "fee too low");
-      if ((res.not_rct = tvc.m_not_rct))
-        add_reason(res.reason, "tx is not ringct");
+      const vote_verification_context &vvc = tvc.m_vote_ctx;
+      res.status  = "Failed";
+      res.reason  = print_tx_verification_context  (tvc);
+      res.reason += print_vote_verification_context(vvc);
+
+      res.low_mixin = tvc.m_low_mixin;
+      res.double_spend = tvc.m_double_spend;
+      res.invalid_input = tvc.m_invalid_input;
+      res.invalid_output = tvc.m_invalid_output;
+      res.too_big = tvc.m_too_big;
+      res.overspend = tvc.m_overspend;
+      res.fee_too_low = tvc.m_fee_too_low;
+      res.not_rct = tvc.m_not_rct;
+      res.invalid_block_height = vvc.m_invalid_block_height;
+      res.duplicate_voters = vvc.m_duplicate_voters;
+      res.voters_quorum_index_out_of_bounds = vvc.m_voters_quorum_index_out_of_bounds;
+      res.utility_node_index_out_of_bounds = vvc.m_utility_node_index_out_of_bounds;
+      res.signature_not_valid = vvc.m_signature_not_valid;
+      res.not_enough_votes = vvc.m_not_enough_votes;
       const std::string punctuation = res.reason.empty() ? "" : ": ";
       if (tvc.m_verifivation_failed)
       {
@@ -1086,7 +1090,7 @@ namespace cryptonote
     {
       error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
       error_resp.message = "Internal error: failed to create block template";
-      LOG_ERROR("Failed to  tx pub key in coinbase extra");
+      LOG_ERROR("Failed to get tx pub key in coinbase extra");
       return false;
     }
     res.reserved_offset = slow_memmem((void*)block_blob.data(), block_blob.size(), &tx_pub_key, sizeof(tx_pub_key));
@@ -2014,6 +2018,58 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_quorum_state(const COMMAND_RPC_GET_QUORUM_STATE::request& req, COMMAND_RPC_GET_QUORUM_STATE::response& res, epee::json_rpc::error& error_resp)
+  {
+    PERF_TIMER(on_get_quorum_state);
+    bool r;
+
+    const auto quorum_state = m_core.get_quorum_state(req.height);
+    r = (quorum_state != nullptr);
+    if (r)
+    {
+      res.status = CORE_RPC_STATUS_OK;
+      res.quorum_nodes.reserve (quorum_state->quorum_nodes.size());
+      res.nodes_to_test.reserve(quorum_state->nodes_to_test.size());
+
+      for (const auto &key : quorum_state->quorum_nodes)
+        res.quorum_nodes.push_back(epee::string_tools::pod_to_hex(key));
+
+      for (const auto &key : quorum_state->nodes_to_test)
+        res.nodes_to_test.push_back(epee::string_tools::pod_to_hex(key));
+    }
+    else
+    {
+      error_resp.code     = CORE_RPC_ERROR_CODE_WRONG_PARAM;
+      error_resp.message  = "Block height: ";
+      error_resp.message += std::to_string(req.height);
+      error_resp.message += ", returned null hash or failed to derive quorum list";
+    }
+
+    return r;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_utility_node_key(const COMMAND_RPC_GET_UTILITY_NODE_KEY::request& req, COMMAND_RPC_GET_UTILITY_NODE_KEY::response& res, epee::json_rpc::error &error_resp)
+  {
+    PERF_TIMER(on_get_utility_node_key);
+
+    crypto::public_key pubkey;
+    crypto::secret_key seckey;
+    bool result = m_core.get_utility_node_keys(pubkey, seckey);
+    if (result)
+    {
+      res.utility_node_pubkey = string_tools::pod_to_hex(pubkey);
+    }
+    else
+    {
+      error_resp.code    = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
+      error_resp.message = "Daemon queried is not a utility node or did not launch with --utility-node";
+      return false;
+    }
+
+    res.status = CORE_RPC_STATUS_OK;
+    return result;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
   bool core_rpc_server::on_relay_tx(const COMMAND_RPC_RELAY_TX::request& req, COMMAND_RPC_RELAY_TX::response& res, epee::json_rpc::error& error_resp)
   {
     PERF_TIMER(on_relay_tx);
@@ -2115,67 +2171,20 @@ namespace cryptonote
     try
     {
       // 0 is placeholder for the whole chain
-      const uint64_t req_to_height = req_to_height ? req_to_height : (m_core.get_current_blockchain_height() - 1);
+      const uint64_t req_to_height = req.to_height ? req.to_height : (m_core.get_current_blockchain_height() - 1);
       for (uint64_t amount: req.amounts)
-      {
-        static struct D
-        {
-          boost::mutex mutex;
-          std::vector<uint64_t> cached_distribution;
-          uint64_t cached_from, cached_to, cached_start_height, cached_base;
-          bool cached;
-          D(): cached_from(0), cached_to(0), cached_start_height(0), cached_base(0), cached(false) {}
-        } d;
-        boost::unique_lock<boost::mutex> lock(d.mutex);
+       {
+         auto data = rpc::RpcHandler::get_output_distribution(m_core, amount, req.from_height, req_to_height, req.cumulative);
+         if (!data)
+         {
+           error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
+           error_resp.message = "Failed to get output distribution";
+           return false;
+         }
 
-        if (d.cached && amount == 0 && d.cached_from == req.from_height && d.cached_to == req_to_height)
-        {
-          res.distributions.push_back({amount, d.cached_start_height, req.binary, d.cached_distribution, d.cached_base});
-          if (!req.cumulative)
-          {
-            auto &distribution = res.distributions.back().distribution;
-            for (size_t n = distribution.size() - 1; n > 0; --n)
-              distribution[n] -= distribution[n-1];
-            distribution[0] -= d.cached_base;
-          }
-          continue;
-        }
-
-        std::vector<uint64_t> distribution;
-        uint64_t start_height, base;
-        if (!m_core.get_output_distribution(amount, req.from_height, req_to_height, start_height, distribution, base))
-        {
-          error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
-          error_resp.message = "Failed to get rct distribution";
-          return false;
-        }
-        if (req_to_height > 0 && req_to_height >= req.from_height)
-        {
-          uint64_t offset = std::max(req.from_height, start_height);
-          if (offset <= req_to_height && req_to_height - offset + 1 < distribution.size())
-            distribution.resize(req_to_height - offset + 1);
-        }
-
-        if (amount == 0)
-        {
-          d.cached_from = req.from_height;
-          d.cached_to = req_to_height;
-          d.cached_distribution = distribution;
-          d.cached_start_height = start_height;
-          d.cached_base = base;
-          d.cached = true;
-        }
-
-        if (!req.cumulative)
-        {
-          for (size_t n = distribution.size() - 1; n > 0; --n)
-            distribution[n] -= distribution[n-1];
-          distribution[0] -= base;
-        }
-
-        res.distributions.push_back({amount, start_height, req.binary, std::move(distribution), base});
-      }
-    }
+         res.distributions.push_back({std::move(*data), amount, req.binary});
+       }
+     }
     catch (const std::exception &e)
     {
       error_resp.code = CORE_RPC_ERROR_CODE_INTERNAL_ERROR;
@@ -2187,7 +2196,92 @@ namespace cryptonote
     return true;
   }
   //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_utility_node_registration_cmd(const COMMAND_RPC_GET_UTILITY_NODE_REGISTRATION_CMD::request& req,
+                                                             COMMAND_RPC_GET_UTILITY_NODE_REGISTRATION_CMD::response& res,
+                                                             epee::json_rpc::error& error_resp)
+  {
+    PERF_TIMER(on_get_utility_node_registration_cmd);
 
+    crypto::public_key utility_node_pubkey;
+    crypto::secret_key utility_node_key;
+    if (!m_core.get_utility_node_keys(utility_node_pubkey, utility_node_key))
+    {
+      error_resp.code    = CORE_RPC_ERROR_CODE_WRONG_PARAM;
+      error_resp.message = "Daemon has not been started in utility node mode, please relaunch with --utility-node flag.";
+      return false;
+    }
+
+    if (!utility_nodes::make_registration_cmd(m_core.get_nettype(), req.args, utility_node_pubkey, utility_node_key, res.registration_cmd, req.make_friendly))
+    {
+      error_resp.code    = CORE_RPC_ERROR_CODE_WRONG_PARAM;
+      error_resp.message = "Failed to make registration command";
+      return false;
+    }
+
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_utility_nodes(const COMMAND_RPC_GET_UTILITY_NODES::request& req, COMMAND_RPC_GET_UTILITY_NODES::response& res, epee::json_rpc::error& error_resp)
+  {
+    PERF_TIMER(on_get_utility_nodes);
+
+    std::vector<crypto::public_key> pubkeys(req.utility_node_pubkeys.size());
+    for (size_t i = 0; i < req.utility_node_pubkeys.size(); i++)
+    {
+      if (!string_tools::hex_to_pod(req.utility_node_pubkeys[i], pubkeys[i]))
+      {
+        error_resp.code    = CORE_RPC_ERROR_CODE_WRONG_PARAM;
+        error_resp.message = "Could not convert to a public key, arg: ";
+        error_resp.message += std::to_string(i);
+        error_resp.message += " which is pubkey: ";
+        error_resp.message += req.utility_node_pubkeys[i];
+        return false;
+      }
+    }
+
+    std::vector<utility_nodes::utility_node_pubkey_info> pubkey_info_list = m_core.get_utility_node_list_state(pubkeys);
+
+    res.status = CORE_RPC_STATUS_OK;
+    res.utility_node_states.reserve(pubkey_info_list.size());
+    for (const auto &pubkey_info : pubkey_info_list)
+    {
+      COMMAND_RPC_GET_UTILITY_NODES::response::entry entry = {};
+      entry.utility_node_pubkey           = string_tools::pod_to_hex(pubkey_info.pubkey);
+      entry.registration_height           = pubkey_info.info.registration_height;
+      entry.last_reward_block_height      = pubkey_info.info.last_reward_block_height;
+      entry.last_reward_transaction_index = pubkey_info.info.last_reward_transaction_index;
+      entry.last_uptime_proof             = m_core.get_uptime_proof(pubkey_info.pubkey);
+
+      entry.contributors.reserve(pubkey_info.info.contributors.size());
+      for (utility_nodes::utility_node_info::contribution const &contributor : pubkey_info.info.contributors)
+      {
+        COMMAND_RPC_GET_UTILITY_NODES::response::contribution new_contributor = {};
+        new_contributor.amount   = contributor.amount;
+        new_contributor.reserved = contributor.reserved;
+        new_contributor.address  = cryptonote::get_account_address_as_str(m_core.get_nettype(), false/*is_subaddress*/, contributor.address);
+        entry.contributors.push_back(new_contributor);
+      }
+
+      entry.total_contributed             = pubkey_info.info.total_contributed;
+      entry.total_reserved                = pubkey_info.info.total_reserved;
+      entry.staking_requirement           = pubkey_info.info.staking_requirement;
+      entry.portions_for_operator         = pubkey_info.info.portions_for_operator;
+      entry.operator_address              = cryptonote::get_account_address_as_str(m_core.get_nettype(), false/*is_subaddress*/, pubkey_info.info.operator_address);
+
+      res.utility_node_states.push_back(entry);
+    }
+
+    return true;
+  }
+  //------------------------------------------------------------------------------------------------------------------------------
+  bool core_rpc_server::on_get_staking_requirement(const COMMAND_RPC_GET_STAKING_REQUIREMENT::request& req, COMMAND_RPC_GET_STAKING_REQUIREMENT::response& res, epee::json_rpc::error& error_resp)
+  {
+    PERF_TIMER(on_get_staking_requirement);
+    res.staking_requirement = utility_nodes::get_staking_requirement(m_core.get_nettype(), req.height);
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  }
 
   const command_line::arg_descriptor<std::string, false, true, 2> core_rpc_server::arg_rpc_bind_port = {
       "rpc-bind-port"

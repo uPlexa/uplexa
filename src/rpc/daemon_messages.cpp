@@ -1,22 +1,22 @@
 // Copyright (c) 2016-2018, uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -61,6 +61,7 @@ const char* const GetOutputHistogram::name = "get_output_histogram";
 const char* const GetOutputKeys::name = "get_output_keys";
 const char* const GetRPCVersion::name = "get_rpc_version";
 const char* const GetPerKBFeeEstimate::name = "get_dynamic_per_kb_fee_estimate";
+const char* const GetOutputDistribution::name = "get_output_distribution";
 
 
 
@@ -856,6 +857,44 @@ rapidjson::Value GetPerKBFeeEstimate::Response::toJson(rapidjson::Document& doc)
 void GetPerKBFeeEstimate::Response::fromJson(rapidjson::Value& val)
 {
   GET_FROM_JSON_OBJECT(val, estimated_fee_per_kb, estimated_fee_per_kb);
+}
+
+rapidjson::Value GetOutputDistribution::Request::toJson(rapidjson::Document& doc) const
+{
+  auto val = Message::toJson(doc);
+  auto& al = doc.GetAllocator();
+
+  INSERT_INTO_JSON_OBJECT(val, doc, amounts, amounts);
+  INSERT_INTO_JSON_OBJECT(val, doc, from_height, from_height);
+  INSERT_INTO_JSON_OBJECT(val, doc, to_height, to_height);
+  INSERT_INTO_JSON_OBJECT(val, doc, cumulative, cumulative);
+
+  return val;
+}
+
+void GetOutputDistribution::Request::fromJson(rapidjson::Value& val)
+{
+  GET_FROM_JSON_OBJECT(val, amounts, amounts);
+  GET_FROM_JSON_OBJECT(val, from_height, from_height);
+  GET_FROM_JSON_OBJECT(val, to_height, to_height);
+  GET_FROM_JSON_OBJECT(val, cumulative, cumulative);
+}
+
+rapidjson::Value GetOutputDistribution::Response::toJson(rapidjson::Document& doc) const
+{
+  auto val = Message::toJson(doc);
+  auto& al = doc.GetAllocator();
+
+  INSERT_INTO_JSON_OBJECT(val, doc, status, status);
+  INSERT_INTO_JSON_OBJECT(val, doc, distributions, distributions);
+
+  return val;
+}
+
+void GetOutputDistribution::Response::fromJson(rapidjson::Value& val)
+{
+  GET_FROM_JSON_OBJECT(val, status, status);
+  GET_FROM_JSON_OBJECT(val, distributions, distributions);
 }
 
 

@@ -1,22 +1,21 @@
-
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -26,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -38,7 +37,84 @@
 namespace cryptonote
 {
   //---------------------------------------------------------------
-  bool construct_miner_tx(size_t height, size_t median_weight, uint64_t already_generated_coins, size_t current_block_weight, uint64_t fee, const account_public_address &miner_address, transaction& tx, const blobdata& extra_nonce = blobdata(), size_t max_outs = 999, uint8_t hard_fork_version = 1);
+  keypair  get_deterministic_keypair_from_height(uint64_t height);
+  bool     get_deterministic_output_key         (const account_public_address& address, const keypair& tx_key, size_t output_index, crypto::public_key& output_key);
+  bool     validate_governance_reward_key       (uint64_t height, const std::string& governance_wallet_address_str, size_t output_index, const crypto::public_key& output_key, const cryptonote::network_type nettype);
+
+  uint64_t governance_reward_formula            (uint64_t base_reward);
+  bool     block_has_governance_output          (network_type nettype, cryptonote::block const &block);
+  bool     height_has_governance_output         (network_type nettype, int hard_fork_version, uint64_t height);
+  uint64_t derive_governance_from_block_reward  (network_type nettype, const cryptonote::block &block);
+
+  uint64_t get_portion_of_reward                (uint64_t portions, uint64_t total_utility_node_reward);
+  uint64_t utility_node_reward_formula          (uint64_t base_reward, int hard_fork_version);
+
+  struct monero_miner_tx_context
+  {
+    using stake_portions = uint64_t;
+
+    monero_miner_tx_context(network_type type         = MAINNET,
+                          crypto::public_key winner = crypto::null_pkey,
+                          std::vector<std::pair<account_public_address, stake_portions>> winner_info = {});
+
+    network_type                                                   nettype;
+    crypto::public_key                                             unode_winner_key;
+    std::vector<std::pair<account_public_address, stake_portions>> unode_winner_info;  // NOTE: If empty we use utility_nodes::null_winner
+    uint64_t                                                       batched_governance; // NOTE: 0 until hardfork v10, then use blockchain::calc_batched_governance_reward
+  };
+
+  bool construct_miner_tx(
+      size_t height,
+      size_t median_weight,
+      uint64_t already_generated_coins,
+      size_t current_block_weight,
+      uint64_t fee,
+      const account_public_address &miner_address,
+      transaction& tx,
+      const blobdata& extra_nonce = blobdata(),
+      size_t max_outs = 999,
+      uint8_t hard_fork_version = 1,
+      const monero_miner_tx_context &miner_context = {});
+
+  struct block_reward_parts
+  {
+    uint64_t utility_node_total;
+    uint64_t utility_node_paid;
+
+    uint64_t governance;
+    uint64_t base_miner;
+    uint64_t base_miner_fee;
+
+    // NOTE: Post hardfork 10, adjusted base reward is the block reward with the
+    // governance amount removed. We still need the original base reward, so
+    // that we can calculate the 50% on the whole base amount, that should be
+    // allocated for the utility node and fees.
+
+    // If this block contains the batched governance payment, this is
+    // included in the adjusted base reward.
+
+    // Before hardfork 10, this is the same value as original_base_reward
+    uint64_t adjusted_base_reward;
+    uint64_t original_base_reward;
+
+    uint64_t miner_reward() { return base_miner + base_miner_fee; }
+  };
+
+  struct monero_block_reward_context
+  {
+    using portions = uint64_t;
+    uint64_t                                                 height;
+    uint64_t                                                 fee;
+    uint64_t                                                 batched_governance; // Optional: 0 hardfork v10, then must be calculated using blockchain::calc_batched_governance_reward
+    std::vector<std::pair<account_public_address, portions>> unode_winner_info;  // Optional: Check contributor portions add up, else set empty to use utility_nodes::null_winner
+  };
+
+  // NOTE(monero): I would combine this into get_base_block_reward, but
+  // cryptonote_basic as a library is to be able to trivially link with
+  // cryptonote_core since it would have a circular dependency on Blockchain
+
+  // NOTE: Block reward function that should be called after hard fork v10
+  bool get_monero_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, int hard_fork_version, block_reward_parts &result, const monero_block_reward_context &monero_context);
 
   struct tx_source_entry
   {
@@ -81,6 +157,11 @@ namespace cryptonote
     tx_destination_entry() : amount(0), addr(AUTO_VAL_INIT(addr)), is_subaddress(false) { }
     tx_destination_entry(uint64_t a, const account_public_address &ad, bool is_subaddress) : amount(a), addr(ad), is_subaddress(is_subaddress) { }
 
+    bool operator==(const tx_destination_entry& other) const
+    {
+      return amount == other.amount && addr == other.addr;
+    }
+
     BEGIN_SERIALIZE_OBJECT()
       VARINT_FIELD(amount)
       FIELD(addr)
@@ -89,10 +170,10 @@ namespace cryptonote
   };
 
   //---------------------------------------------------------------
-  crypto::public_key get_destination_view_key_pub(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::account_public_address>& change_addr);
-  bool construct_tx(const account_keys& sender_account_keys, std::vector<tx_source_entry> &sources, const std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::account_public_address>& change_addr, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time);
-  bool construct_tx_with_tx_key(const account_keys& sender_account_keys, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, std::vector<tx_source_entry>& sources, std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::account_public_address>& change_addr, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time, const crypto::secret_key &tx_key, const std::vector<crypto::secret_key> &additional_tx_keys, bool rct = false, rct::RangeProofType  range_proof_type = rct::RangeProofBorromean, rct::multisig_out *msout = NULL, bool shuffle_outs = true);
-  bool construct_tx_and_get_tx_key(const account_keys& sender_account_keys, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, std::vector<tx_source_entry>& sources, std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::account_public_address>& change_addr, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time, crypto::secret_key &tx_key, std::vector<crypto::secret_key> &additional_tx_keys, bool rct = false, rct::RangeProofType  range_proof_type = rct::RangeProofBorromean, rct::multisig_out *msout = NULL);
+  crypto::public_key get_destination_view_key_pub(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::tx_destination_entry>& change_addr);
+  bool construct_tx(const account_keys& sender_account_keys, std::vector<tx_source_entry> &sources, const std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::tx_destination_entry>& change_addr, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time, uint8_t hf_version = 1, bool is_staking = false);
+  bool construct_tx_with_tx_key(const account_keys& sender_account_keys, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, std::vector<tx_source_entry>& sources, std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::tx_destination_entry>& change_addr, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time, const crypto::secret_key &tx_key, const std::vector<crypto::secret_key> &additional_tx_keys, bool rct = false, rct::RangeProofType range_proof_type = rct::RangeProofBorromean, rct::multisig_out *msout = NULL, bool per_output_unlock = false, bool shuffle_outs = true);
+  bool construct_tx_and_get_tx_key(const account_keys& sender_account_keys, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, std::vector<tx_source_entry>& sources, std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::tx_destination_entry>& change_addr, std::vector<uint8_t> extra, transaction& tx, uint64_t unlock_time, crypto::secret_key &tx_key, std::vector<crypto::secret_key> &additional_tx_keys, bool rct = false, rct::RangeProofType range_proof_type = rct::RangeProofBorromean, rct::multisig_out *msout = NULL, bool is_staking_tx = false, bool per_output_unlock = false);
 
   bool generate_genesis_block(
       block& bl

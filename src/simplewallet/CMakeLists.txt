@@ -1,4 +1,3 @@
-
 # Copyright (c) 2014-2019, The Monero Project
 #
 # All rights reserved.
@@ -44,6 +43,7 @@ monero_add_executable(simplewallet
 target_link_libraries(simplewallet
   PRIVATE
     wallet
+    daemonizer
     rpc_base
     cryptonote_core
     cncrypto

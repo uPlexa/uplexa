@@ -1,5 +1,5 @@
-
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Project
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -303,8 +303,8 @@ public:
 
   virtual uint64_t get_indexing_base() const { return 1; }
 
-  virtual output_data_t get_output_key(const uint64_t& amount, const uint64_t& index);
-  virtual void get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs);
+  virtual output_data_t get_output_key(const uint64_t& amount, const uint64_t& index) const;
+  virtual void get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs) const;
 
   virtual tx_out_index get_output_tx_and_index_from_global(const uint64_t& index) const;
   virtual void get_output_tx_and_index_from_global(const std::vector<uint64_t> &global_indices,
@@ -428,6 +428,10 @@ private:
   //
   // fix up anything that may be wrong due to past bugs
   virtual void fixup();
+
+  virtual void set_utility_node_data(const std::string& data);
+  virtual bool get_utility_node_data(std::string& data);
+  virtual void clear_utility_node_data();
 
   bool m_run_checkpoint;
   std::unique_ptr<boost::thread> m_checkpoint_thread;

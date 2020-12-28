@@ -1,5 +1,5 @@
-
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Team
 //
 // All rights reserved.
 //
@@ -94,6 +94,42 @@ t_command_server::t_command_server(
     , std::bind(&t_command_parser_executor::print_transaction, &m_parser, p::_1)
     , "print_tx <transaction_hash> [+hex] [+json]"
     , "Print a given transaction."
+    );
+  m_command_lookup.set_handler(
+    "print_quorum_state"
+  , std::bind(&t_command_parser_executor::print_quorum_state, &m_parser, p::_1)
+  , "print_quorum_state <height>"
+  , "Print the quorum state for the block height."
+  );
+  m_command_lookup.set_handler(
+      "print_sn_key"
+    , std::bind(&t_command_parser_executor::print_sn_key, &m_parser, p::_1)
+    , "print_sn_key"
+    , "Print this daemon's utility node key, if it is one and launched in utility node mode."
+    );
+  m_command_lookup.set_handler(
+      "print_sr"
+    , std::bind(&t_command_parser_executor::print_sr, &m_parser, p::_1)
+    , "print_sr <height>"
+    , "Print the staking requirement for the height."
+    );
+  m_command_lookup.set_handler(
+      "register_node"
+    , std::bind(&t_command_parser_executor::register_node, &m_parser)
+    , "register_node"
+    , "Interactive prompt to prepare the registration. The resulting registration data is saved to disk."
+    );
+  m_command_lookup.set_handler(
+      "print_sn"
+    , std::bind(&t_command_parser_executor::print_sn, &m_parser, p::_1)
+    , "print_sn [<pubkey> [...]]"
+    , "Print utility node registration info for the current height"
+    );
+  m_command_lookup.set_handler(
+      "print_sn_status"
+    , std::bind(&t_command_parser_executor::print_sn_status, &m_parser, p::_1)
+    , "print_sn_status"
+    , "Print utility node registration info for this utility node"
     );
   m_command_lookup.set_handler(
       "is_key_image_spent"

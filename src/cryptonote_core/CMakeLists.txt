@@ -1,4 +1,3 @@
-
 # Copyright (c) 2014-2019, The Monero Project
 #
 # All rights reserved.
@@ -30,6 +29,10 @@
 set(cryptonote_core_sources
   blockchain.cpp
   cryptonote_core.cpp
+  utility_node_rules.cpp
+  utility_node_list.cpp
+  utility_node_deregister.cpp
+  quorum_cop.cpp
   tx_pool.cpp
   cryptonote_tx_utils.cpp)
 
@@ -38,7 +41,11 @@ set(cryptonote_core_headers)
 set(cryptonote_core_private_headers
   blockchain_storage_boost_serialization.h
   blockchain.h
+  utility_node_rules.h
+  utility_node_list.h
+  quorum_cop.h
   cryptonote_core.h
+  utility_node_deregister.h
   tx_pool.h
   cryptonote_tx_utils.h)
 

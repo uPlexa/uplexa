@@ -1,5 +1,5 @@
-
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Project
 //
 // All rights reserved.
 //
@@ -409,7 +409,7 @@ private:
   /**
    * @brief remove data about a transaction
    *
-   * The subclass implementing this will remove the transaction data 
+   * The subclass implementing this will remove the transaction data
    * for the passed transaction.  The data to be removed was added in
    * add_transaction_data().  Additionally, current subclasses have behavior
    * which requires the transaction itself as a parameter here.  Future
@@ -1114,6 +1114,22 @@ public:
    */
   virtual uint64_t get_tx_unlock_time(const crypto::hash& h) const = 0;
 
+  // return unlock time of output with the given amount and output amount index
+  /**
+   * @brief fetch an output's unlock time/height
+   *
+   * The subclass should return the stored unlock time for the output
+   * with the given amount and output amount index.
+   *
+   * If no such output exists, the subclass should throw OUTPUT_DNE.
+   *
+   * @param amount the amount of the requested output
+   * @param amount_index the amount index of the requested output
+   *
+   * @return the unlock time/height
+   */
+  uint64_t get_output_unlock_time(const uint64_t amount, const uint64_t global_index) const;
+
   // return tx with hash <h>
   // throw if no such tx exists
   /**
@@ -1260,7 +1276,7 @@ public:
    *
    * @return the requested output data
    */
-  virtual output_data_t get_output_key(const uint64_t& amount, const uint64_t& index) = 0;
+  virtual output_data_t get_output_key(const uint64_t& amount, const uint64_t& index) const = 0;
 
   /**
    * @brief gets an output's tx hash and index
@@ -1312,8 +1328,8 @@ public:
    * @param offsets a list of amount-specific output indices
    * @param outputs return-by-reference a list of outputs' metadata
    */
-  virtual void get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs, bool allow_partial = false) = 0;
-  
+  virtual void get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs, bool allow_partial = false) const = 0;
+
   /*
    * FIXME: Need to check with git blame and ask what this does to
    * document it
@@ -1562,6 +1578,9 @@ public:
    * @brief fix up anything that may be wrong due to past bugs
    */
   virtual void fixup();
+  virtual void set_utility_node_data(const std::string& data) = 0;
+  virtual bool get_utility_node_data(std::string& data) = 0;
+  virtual void clear_utility_node_data() = 0;
 
   /**
    * @brief set whether or not to automatically remove logs

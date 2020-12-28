@@ -1,5 +1,5 @@
-
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Team
 //
 // All rights reserved.
 //
@@ -137,7 +137,7 @@ bool t_daemon::run(bool interactive)
   {
     throw std::runtime_error{"Can't run stopped daemon"};
   }
-  
+
   std::atomic<bool> stop(false), shutdown(false);
   boost::thread stop_thread = boost::thread([&stop, &shutdown, this] {
     while (!stop)

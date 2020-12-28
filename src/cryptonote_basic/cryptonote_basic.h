@@ -1,22 +1,21 @@
-
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -26,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -157,6 +156,13 @@ namespace cryptonote
   {
 
   public:
+    enum version
+    {
+      version_0 = 0,
+      version_1,
+      version_2,
+      version_3,
+    };
     // tx information
     size_t   version;
     uint64_t unlock_time;  //number of block (or time), used as a limitation like: spend this tx not early then block/time
@@ -166,17 +172,41 @@ namespace cryptonote
     //extra
     std::vector<uint8_t> extra;
 
+    std::vector<uint64_t> output_unlock_times;
+    bool is_deregister; //utility node deregister tx
+
     BEGIN_SERIALIZE()
       VARINT_FIELD(version)
+      if (version > 2)
+      {
+        FIELD(output_unlock_times)
+        if (version == version_3)
+          FIELD(is_deregister)
+      }
       if(version == 0 || CURRENT_TRANSACTION_VERSION < version) return false;
       VARINT_FIELD(unlock_time)
       FIELD(vin)
       FIELD(vout)
+      if (version >= 3 && vout.size() != output_unlock_times.size()) return false; 
       FIELD(extra)
     END_SERIALIZE()
 
   public:
     transaction_prefix(){}
+    bool is_deregister_tx() const { return (version >= version_3) && is_deregister; }
+    uint64_t get_unlock_time(size_t out_index) const
+    {
+      if (version >= version_3)
+      {
+        if (out_index >= output_unlock_times.size())
+        {
+          LOG_ERROR("Tried to get unlock time of a v3 transaction with missing output unlock time");
+          return unlock_time;
+        }
+        return output_unlock_times[out_index];
+      }
+      return unlock_time;
+    }
   };
 
   class transaction: public transaction_prefix
@@ -194,9 +224,11 @@ namespace cryptonote
     mutable crypto::hash hash;
     mutable size_t blob_size;
 
+    bool pruned;
+
     transaction();
-    transaction(const transaction &t): transaction_prefix(t), hash_valid(false), blob_size_valid(false), signatures(t.signatures), rct_signatures(t.rct_signatures) { if (t.is_hash_valid()) { hash = t.hash; set_hash_valid(true); } if (t.is_blob_size_valid()) { blob_size = t.blob_size; set_blob_size_valid(true); } }
-    transaction &operator=(const transaction &t) { transaction_prefix::operator=(t); set_hash_valid(false); set_blob_size_valid(false); signatures = t.signatures; rct_signatures = t.rct_signatures; if (t.is_hash_valid()) { hash = t.hash; set_hash_valid(true); } if (t.is_blob_size_valid()) { blob_size = t.blob_size; set_blob_size_valid(true); } return *this; }
+    transaction(const transaction &t): transaction_prefix(t), hash_valid(false), blob_size_valid(false), signatures(t.signatures), rct_signatures(t.rct_signatures), pruned(t.pruned) { if (t.is_hash_valid()) { hash = t.hash; set_hash_valid(true); } if (t.is_blob_size_valid()) { blob_size = t.blob_size; set_blob_size_valid(true); } }
+    transaction &operator=(const transaction &t) { transaction_prefix::operator=(t); set_hash_valid(false); set_blob_size_valid(false); signatures = t.signatures; rct_signatures = t.rct_signatures; if (t.is_hash_valid()) { hash = t.hash; set_hash_valid(true); } if (t.is_blob_size_valid()) { blob_size = t.blob_size; set_blob_size_valid(true); } pruned = t.pruned; return *this; }
     virtual ~transaction();
     void set_null();
     void invalidate_hashes();
@@ -204,6 +236,8 @@ namespace cryptonote
     void set_hash_valid(bool v) const { hash_valid.store(v,std::memory_order_release); }
     bool is_blob_size_valid() const { return blob_size_valid.load(std::memory_order_acquire); }
     void set_blob_size_valid(bool v) const { blob_size_valid.store(v,std::memory_order_release); }
+    void set_hash(const crypto::hash &h) { hash = h; set_hash_valid(true); }
+    void set_blob_size(size_t sz) { blob_size = sz; set_blob_size_valid(true); }
 
     BEGIN_SERIALIZE_OBJECT()
       if (!typename Archive<W>::is_saving())
@@ -223,7 +257,7 @@ namespace cryptonote
         if (!signatures_not_expected && vin.size() != signatures.size())
           return false;
 
-        for (size_t i = 0; i < vin.size(); ++i)
+        if (!pruned) for (size_t i = 0; i < vin.size(); ++i)
         {
           size_t signature_size = get_signature_size(vin[i]);
           if (signatures_not_expected)
@@ -254,7 +288,7 @@ namespace cryptonote
           bool r = rct_signatures.serialize_rctsig_base(ar, vin.size(), vout.size());
           if (!r || !ar.stream().good()) return false;
           ar.end_object();
-          if (rct_signatures.type != rct::RCTTypeNull)
+          if (!pruned && rct_signatures.type != rct::RCTTypeNull)
           {
             ar.tag("rctsig_prunable");
             ar.begin_object();
@@ -265,6 +299,8 @@ namespace cryptonote
           }
         }
       }
+      if (!typename Archive<W>::is_saving())
+        pruned = false;
     END_SERIALIZE()
 
     template<bool W, template <bool> class Archive>
@@ -286,6 +322,8 @@ namespace cryptonote
           ar.end_object();
         }
       }
+      if (!typename Archive<W>::is_saving())
+        pruned = true;
       return true;
     }
 
@@ -311,13 +349,17 @@ namespace cryptonote
   {
     version = 1;
     unlock_time = 0;
+    output_unlock_times.clear();
+    is_deregister = false;
     vin.clear();
     vout.clear();
     extra.clear();
     signatures.clear();
+    rct_signatures = {};
     rct_signatures.type = rct::RCTTypeNull;
     set_hash_valid(false);
     set_blob_size_valid(false);
+    pruned = false;
   }
 
   inline

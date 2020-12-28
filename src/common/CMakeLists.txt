@@ -1,4 +1,3 @@
-
 # Copyright (c) 2014-2019, The Monero Project
 #
 # All rights reserved.
@@ -38,6 +37,9 @@ set(common_sources
   expect.cpp
   util.cpp
   i18n.cpp
+  exp2.cpp
+  round.cpp
+  rules.cpp
   notify.cpp
   password.cpp
   perf_timer.cpp
@@ -64,6 +66,8 @@ set(common_private_headers
   common_fwd.h
   dns_utils.h
   download.h
+  exp2.h
+  round.h
   error.h
   expect.h
   http_connection.h
@@ -78,6 +82,7 @@ set(common_private_headers
   i18n.h
   password.h
   perf_timer.h
+  rules.h
   spawn.h
   stack_trace.h
   threadpool.h

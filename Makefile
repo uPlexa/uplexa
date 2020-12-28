@@ -1,4 +1,4 @@
-# Copyright (c) 2018, uPlexa Team
+# Copyright (c) 2018-2020, uPlexa Team
 #
 # All rights reserved.
 #
@@ -28,6 +28,11 @@
 
 ANDROID_STANDALONE_TOOLCHAIN_PATH ?= /usr/local/toolchain
 
+dotgit=$(shell ls -d .git/config)
+ifneq ($(dotgit), .git/config)
+  USE_SINGLE_BUILDDIR=1
+endif
+
 subbuilddir:=$(shell echo  `uname | sed -e 's|[:/\\ \(\)]|_|g'`/`git branch | grep '\* ' | cut -f2- -d' '| sed -e 's|[:/\\ \(\)]|_|g'`)
 ifeq ($(USE_SINGLE_BUILDDIR),)
   builddir := build/"$(subbuilddir)"
@@ -40,6 +45,10 @@ else
 endif
 
 all: release-all
+
+depends:
+	cd contrib/depends && $(MAKE) HOST=$(target) && cd ../.. && mkdir -p build/$(target)/release
+	cd build/$(target)/release && cmake -DCMAKE_TOOLCHAIN_FILE=$(CURDIR)/contrib/depends/$(target)/share/toolchain.cmake ../../.. && $(MAKE)
 
 cmake-debug:
 	mkdir -p $(builddir)/debug
@@ -65,11 +74,11 @@ debug-static-all:
 debug-static-win64:
 	mkdir -p $(builddir)/debug
 	cd $(builddir)/debug && cmake -G "MSYS Makefiles" -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=Debug -D BUILD_TAG="win-x64" -D CMAKE_TOOLCHAIN_FILE=$(topdir)/cmake/64-bit-toolchain.cmake -D MSYS2_FOLDER=c:/msys64 $(topdir) && $(MAKE)
- 
+
 debug-static-win32:
 	mkdir -p $(builddir)/debug
 	cd $(builddir)/debug && cmake -G "MSYS Makefiles" -D STATIC=ON -D ARCH="i686" -D BUILD_64=OFF -D CMAKE_BUILD_TYPE=Debug -D BUILD_TAG="win-x32" -D CMAKE_TOOLCHAIN_FILE=$(topdir)/cmake/32-bit-toolchain.cmake -D MSYS2_FOLDER=c:/msys32 $(topdir) && $(MAKE)
- 
+
 cmake-release:
 	mkdir -p $(builddir)/release
 	cd $(builddir)/release && cmake -D CMAKE_BUILD_TYPE=Release $(topdir)
@@ -158,6 +167,6 @@ clean-all:
 	rm -rf ./build
 
 tags:
-	ctags -R --sort=1 --c++-kinds=+p --fields=+iaS --extra=+q --language-force=C++ src contrib tests/gtest
+	ctags -R --sort=1 --c++-kinds=+p --fields=+iaS --extra=+q --language-force=C++ src contrib tests/gtest tests
 
 .PHONY: all cmake-debug debug debug-test debug-all cmake-release release release-test release-all clean tags

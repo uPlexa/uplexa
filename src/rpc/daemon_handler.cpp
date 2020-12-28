@@ -1,22 +1,22 @@
-// Copyright (c) 2017-2018, uPlexa Team
+// Copyright (c) 2018-2020, uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -211,7 +211,7 @@ namespace rpc
 
       res.txs.emplace(found_hashes[i], std::move(info));
     }
-                                      
+
     res.missed_hashes = std::move(missed_vec);
     res.status = Message::STATUS_OK;
   }
@@ -319,6 +319,11 @@ namespace rpc
       {
         if (!res.error_details.empty()) res.error_details += " and ";
         res.error_details = "tx is not ringct";
+      }
+      if (tvc.m_invalid_version)
+      {
+        if (!res.error_details.empty()) res.error_details += " and ";
+        res.error_details = "tx is not version 2 or later";
       }
       if (res.error_details.empty())
       {
@@ -462,7 +467,7 @@ namespace rpc
     const cryptonote::miner& lMiner = m_core.get_miner();
     res.active = lMiner.is_mining();
     res.is_background_mining_enabled = lMiner.get_is_background_mining_enabled();
-    
+
     if ( lMiner.is_mining() ) {
       res.speed = lMiner.get_speed();
       res.threads_count = lMiner.get_threads_count();
@@ -731,6 +736,36 @@ namespace rpc
     res.status = Message::STATUS_OK;
   }
 
+
+  void DaemonHandler::handle(const GetOutputDistribution::Request& req, GetOutputDistribution::Response& res)
+  {
+    try
+    {
+      res.distributions.reserve(req.amounts.size());
+
+      const uint64_t req_to_height = req.to_height ? req.to_height : (m_core.get_current_blockchain_height() - 1);
+      for (std::uint64_t amount : req.amounts)
+      {
+        auto data = get_output_distribution(m_core, amount, req.from_height, req_to_height, req.cumulative);
+        if (!data)
+        {
+          res.distributions.clear();
+          res.status = Message::STATUS_FAILED;
+          res.error_details = "Failed to get output distribution";
+          return;
+        }
+        res.distributions.push_back(output_distribution{std::move(*data), amount, req.cumulative});
+      }
+      res.status = Message::STATUS_OK;
+    }
+    catch (const std::exception& e)
+    {
+      res.distributions.clear();
+      res.status = Message::STATUS_FAILED;
+      res.error_details = e.what();
+    }
+  }
+
   bool DaemonHandler::getBlockHeaderByHash(const crypto::hash& hash_in, cryptonote::rpc::BlockHeaderResponse& header)
   {
     block b;
@@ -806,6 +841,7 @@ namespace rpc
       REQ_RESP_TYPES_MACRO(request_type, GetOutputKeys, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, GetRPCVersion, req_json, resp_message, handle);
       REQ_RESP_TYPES_MACRO(request_type, GetPerKBFeeEstimate, req_json, resp_message, handle);
+      REQ_RESP_TYPES_MACRO(request_type, GetOutputDistribution, req_json, resp_message, handle);
 
       // if none of the request types matches
       if (resp_message == NULL)

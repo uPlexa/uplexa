@@ -1,4 +1,4 @@
-
+// Copyright (c) 2018-2020, The uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
@@ -36,7 +36,7 @@
 
 namespace Monero {
 
-class WalletManagerImpl : public WalletManager
+class WalletManagerImpl : public WalletManagerBase
 {
 public:
     Wallet * createWallet(const std::string &path, const std::string &password,
@@ -60,9 +60,9 @@ public:
     // next two methods are deprecated - use the above version which allow setting of a password
     virtual Wallet * recoveryWallet(const std::string &path, const std::string &mnemonic, NetworkType nettype, uint64_t restoreHeight) override;
     // deprecated: use createWalletFromKeys(..., password, ...) instead
-    virtual Wallet * createWalletFromKeys(const std::string &path, 
+    virtual Wallet * createWalletFromKeys(const std::string &path,
                                                     const std::string &language,
-                                                    NetworkType nettype, 
+                                                    NetworkType nettype,
                                                     uint64_t restoreHeight,
                                                     const std::string &addressString,
                                                     const std::string &viewKeyString,

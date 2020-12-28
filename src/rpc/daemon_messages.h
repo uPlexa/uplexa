@@ -1,22 +1,22 @@
 // Copyright (c) 2016-2018, uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -28,6 +28,9 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
+
+#include <unordered_map>
+#include <vector>
 
 #include "message.h"
 #include "cryptonote_protocol/cryptonote_protocol_defs.h"
@@ -414,6 +417,18 @@ BEGIN_RPC_MESSAGE_CLASS(GetPerKBFeeEstimate);
   END_RPC_MESSAGE_REQUEST;
   BEGIN_RPC_MESSAGE_RESPONSE;
     RPC_MESSAGE_MEMBER(uint64_t, estimated_fee_per_kb);
+  END_RPC_MESSAGE_RESPONSE;
+END_RPC_MESSAGE_CLASS;
+
+BEGIN_RPC_MESSAGE_CLASS(GetOutputDistribution);
+  BEGIN_RPC_MESSAGE_REQUEST;
+    std::vector<uint64_t> amounts;
+    uint64_t from_height;
+    uint64_t to_height;
+    bool cumulative;
+  END_RPC_MESSAGE_REQUEST;
+  BEGIN_RPC_MESSAGE_RESPONSE;
+    std::vector<output_distribution> distributions;
   END_RPC_MESSAGE_RESPONSE;
 END_RPC_MESSAGE_CLASS;
 

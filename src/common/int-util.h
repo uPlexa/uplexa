@@ -130,6 +130,32 @@ static inline uint32_t div128_32(uint64_t dividend_hi, uint64_t dividend_lo, uin
   return remainder;
 }
 
+static inline bool shl128(uint64_t* hi, uint64_t* lo) {
+  bool carry = ((*hi) >> 63);
+  *hi <<= 1;
+  *hi += ((*lo) >> 63);
+  *lo <<= 1;
+  return carry;
+}
+
+// Long division with 2^64 base (Likely will not use later)
+static inline uint64_t div128_64(uint64_t dividend_hi, uint64_t dividend_lo, uint64_t divisor, uint64_t* quotient_hi, uint64_t* quotient_lo) {
+  uint64_t remainder = 0;
+  for (size_t i = 0; i < 128; i++) {
+    bool carry = remainder >> 63;
+    remainder <<= 1;
+    if (shl128(&dividend_hi, &dividend_lo))
+      remainder |= 1;
+    if (carry || remainder >= divisor) {
+      remainder -= divisor;
+      dividend_lo |= 1;
+    }
+  }
+  *quotient_hi = dividend_hi;
+  *quotient_lo = dividend_lo;
+  return remainder;
+}
+
 static inline uint64_t int_log2(uint64_t x)
 {
   assert(x != 0);

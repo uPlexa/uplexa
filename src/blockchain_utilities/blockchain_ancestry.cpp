@@ -331,21 +331,21 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  // If we wanted to use the memory pool, we would set up a fake_core.
+  // This is done this way because of the circular constructors.
+  struct BlockchainObjects
+  {
+    Blockchain m_blockchain;
+    tx_memory_pool m_mempool;
+    utility_nodes::utility_node_list m_utility_node_list;
+    monero::deregister_vote_pool m_deregister_vote_pool;
+    BlockchainObjects() :
+      m_blockchain(m_mempool, m_utility_node_list, m_deregister_vote_pool),
+      m_utility_node_list(m_blockchain),
+      m_mempool(m_blockchain) { }
+  };
 
-  // Use Blockchain instead of lower-level BlockchainDB for two reasons:
-  // 1. Blockchain has the init() method for easy setup
-  // 2. exporter needs to use get_current_blockchain_height(), get_block_id_by_height(), get_block_by_hash()
-  //
-  // cannot match blockchain_storage setup above with just one line,
-  // e.g.
-  //   Blockchain* core_storage = new Blockchain(NULL);
-  // because unlike blockchain_storage constructor, which takes a pointer to
-  // tx_memory_pool, Blockchain's constructor takes tx_memory_pool object.
-  LOG_PRINT_L0("Initializing source blockchain (BlockchainDB)");
-  std::unique_ptr<Blockchain> core_storage;
-  tx_memory_pool m_mempool(*core_storage);
-  core_storage.reset(new Blockchain(m_mempool));
+  BlockchainObjects *blockchain_objects = new BlockchainObjects();
+  Blockchain *core_storage = &blockchain_objects->m_blockchain;
   BlockchainDB *db = new_db(db_type);
   if (db == NULL)
   {
@@ -408,8 +408,9 @@ int main(int argc, char* argv[])
     for (uint64_t h = state.height; h < db_height; ++h)
     {
       size_t block_ancestry_size = 0;
-      const crypto::hash block_hash = db->get_block_hash_from_height(h);
-      const cryptonote::blobdata bd = db->get_block_blob(block_hash);
+      //const crypto::hash block_hash = db->get_block_hash_from_height(h);
+      //const cryptonote::blobdata bd = db->get_block_blob(block_hash);
+      const cryptonote::blobdata bd = db->get_block_blob_from_height(h);
       ++total_blocks;
       cryptonote::block b;
       if (!cryptonote::parse_and_validate_block_from_blob(bd, b))
@@ -483,8 +484,7 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
-                  const crypto::hash block_hash = db->get_block_hash_from_height(od.height);
-                  cryptonote::blobdata bd = db->get_block_blob(block_hash);
+                  cryptonote::blobdata bd = db->get_block_blob_from_height(od.height);
                   if (!cryptonote::parse_and_validate_block_from_blob(bd, b))
                   {
                     LOG_PRINT_L0("Bad block from db");
@@ -621,8 +621,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    const crypto::hash block_hash = db->get_block_hash_from_height(opt_height);
-    const cryptonote::blobdata bd = db->get_block_blob(block_hash);
+    const cryptonote::blobdata bd = db->get_block_blob_from_height(opt_height);
     cryptonote::block b;
     if (!cryptonote::parse_and_validate_block_from_blob(bd, b))
     {
@@ -679,8 +678,8 @@ int main(int argc, char* argv[])
           {
             add_ancestor(ancestry, amount, offset);
             const output_data_t od = db->get_output_key(amount, offset);
-            const crypto::hash block_hash = db->get_block_hash_from_height(od.height);
-            bd = db->get_block_blob(block_hash);
+            bd = db->get_block_blob_from_height(od.height);
+            //bd = db->get_block_blob(block_hash);
             cryptonote::block b;
             if (!cryptonote::parse_and_validate_block_from_blob(bd, b))
             {

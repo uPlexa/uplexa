@@ -1,5 +1,6 @@
 
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018-2020, The uPlexa Project
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
@@ -1656,7 +1657,7 @@ output_data_t BlockchainBDB::get_output_key(const uint64_t& global_index) const
     return v;
 }
 
-output_data_t BlockchainBDB::get_output_key(const uint64_t& amount, const uint64_t& index)
+output_data_t BlockchainBDB::get_output_key(const uint64_t& amount, const uint64_t& index) const
 {
     LOG_PRINT_L3("BlockchainBDB::" << __func__);
     check_open();
@@ -1665,7 +1666,7 @@ output_data_t BlockchainBDB::get_output_key(const uint64_t& amount, const uint64
     return get_output_key(glob_index);
 }
 
-tx_out_index BlockchainBDB::get_output_tx_and_index(const uint64_t& amount, const uint64_t& index)
+tx_out_index BlockchainBDB::get_output_tx_and_index(const uint64_t& amount, const uint64_t& index) const
 {
     LOG_PRINT_L3("BlockchainBDB::" << __func__);
     std::vector < uint64_t > offsets;
@@ -2141,7 +2142,7 @@ void BlockchainBDB::get_output_global_indices(const uint64_t& amount, const std:
 
 }
 
-void BlockchainBDB::get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs)
+void BlockchainBDB::get_output_key(const uint64_t &amount, const std::vector<uint64_t> &offsets, std::vector<output_data_t> &outputs) const
 {
     LOG_PRINT_L3("BlockchainBDB::" << __func__);
     check_open();
@@ -2345,6 +2346,19 @@ void BlockchainBDB::fixup()
   LOG_PRINT_L3("BlockchainBDB::" << __func__);
   // Always call parent as well
   BlockchainDB::fixup();
+}
+
+void BlockchainBDB::set_utility_node_data(const std::string& data)
+{
+}
+
+bool BlockchainBDB::get_utility_node_data(std::string& data)
+{
+return false;
+}
+
+void BlockchainBDB::clear_utility_node_data()
+{
 }
 
 }  // namespace cryptonote

@@ -1,4 +1,4 @@
-
+// Copyright (c) 2018-2020, The uPlexa Team
 // Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
@@ -47,6 +47,8 @@ using namespace epee;
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "cn"
 
+double monero_exp2(double);
+
 namespace cryptonote {
 
   struct integrated_address {
@@ -87,7 +89,7 @@ namespace cryptonote {
     return CRYPTONOTE_MAX_TX_SIZE;
   }
   //-----------------------------------------------------------------------------------------------
-  bool get_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint8_t version) {
+  bool get_base_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint8_t version, uint64_t height) {
     const int target = version < 10 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
     const int target_minutes = target / 60;
     const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - int_log2(target_minutes);
@@ -100,14 +102,16 @@ namespace cryptonote {
       return true;
     }
 
+
     uint64_t base_reward = (MONEY_SUPPLY - already_generated_coins) >> emission_speed_factor;
     if (base_reward < FINAL_SUBSIDY_PER_MINUTE*target_minutes)
     {
       base_reward = FINAL_SUBSIDY_PER_MINUTE*target_minutes;
     }
-   if(version>=12){
-     base_reward = base_reward / 2;
-   }
+
+    if(version>=12){
+      base_reward = base_reward / 2;
+    }
 
     //make it soft
     if (median_weight < full_reward_zone) {

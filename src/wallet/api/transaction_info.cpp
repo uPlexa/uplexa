@@ -1,4 +1,3 @@
-
 // Copyright (c) 2014-2019, The Monero Project
 //
 // All rights reserved.
@@ -65,6 +64,16 @@ TransactionInfoImpl::~TransactionInfoImpl()
 int TransactionInfoImpl::direction() const
 {
     return m_direction;
+}
+
+bool TransactionInfoImpl::isServiceNodeReward() const
+{
+    return m_reward_type == reward_type::utility_node;
+}
+
+bool TransactionInfoImpl::isMinerReward() const
+{
+    return m_reward_type == reward_type::miner;
 }
 
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019, uPlexa Team
+# Copyright (c) 2018-2020 uPlexa Team
 # Copyright (c) 2014-2019, The Monero Project
 #
 # All rights reserved.
@@ -105,6 +105,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
 
+# On Darwin, ensure the user-defined paths are used to find PCSC
+# before falling back to the system frameworks.
+set(CMAKE_FIND_FRAMEWORK "LAST")
+
 # ARCH defines the target architecture, either by an explicit identifier or
 # one of the following two keywords. By default, ARCH a value of 'native':
 # target arch = host arch, binary is not portable. When ARCH is set to the
@@ -187,7 +191,7 @@ if(NOT MANUAL_SUBMODULES)
         message(FATAL_ERROR "Submodule '${relative_path}' is not up-to-date. Please update with\ngit submodule update --init --force ${relative_path}\nor run cmake with -DMANUAL_SUBMODULES=1")
       endif()
     endfunction ()
-    
+
     message(STATUS "Checking submodules")
     check_submodule(external/miniupnp)
     check_submodule(external/unbound)
@@ -512,6 +516,16 @@ if (HIDAPI_FOUND)
   link_directories(${LIBHIDAPI_LIBRARY_DIRS})
 else (HIDAPI_FOUND)
   message(STATUS "Could not find HIDAPI")
+endif()
+
+# Protobuf, optional. Required for TREZOR.
+include(FindProtobuf)
+find_package(Protobuf)
+if(Protobuf_FOUND)
+  set(HAVE_PROTOBUF 1)
+  add_definitions(-DHAVE_PROTOBUF=1)
+else(Protobuf_FOUND)
+  message(STATUS "Could not find Protobuf")
 endif()
 
 if(MSVC)
@@ -902,7 +916,7 @@ endif()
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 if(MINGW)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wa,-mbig-obj")
-  set(EXTRA_LIBRARIES mswsock;ws2_32;iphlpapi;crypt32)
+  set(EXTRA_LIBRARIES mswsock;ws2_32;iphlpapi;crypt32;bcrypt)
   if(DEPENDS)
     set(ICU_LIBRARIES ${Boost_LOCALE_LIBRARY} sicuio sicuin sicuuc sicudt sicutu iconv)
   else()

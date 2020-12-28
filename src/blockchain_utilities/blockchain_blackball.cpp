@@ -1,5 +1,5 @@
-
 // Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2014-2020, The uPlexa Project
 //
 // All rights reserved.
 //
@@ -26,6 +26,11 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#ifdef _WIN32
+ #define __STDC_FORMAT_MACROS // Explicitly define the PRIu64 macro on Mingw
+#endif
 
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/algorithm/string.hpp>
@@ -1113,6 +1118,25 @@ int main(int argc, char* argv[])
   {
     LOG_PRINT_L0("No inputs given");
     return 1;
+  }
+
+  std::vector<Blockchain*> core_storage(inputs.size());
+  for (size_t n = 0; n < inputs.size(); ++n)
+  {
+    // This is done this way because of the circular constructors.
+    struct BlockchainObjects
+    {
+      Blockchain m_blockchain;
+      tx_memory_pool m_mempool;
+      utility_nodes::utility_node_list m_utility_node_list;
+      monero::deregister_vote_pool m_deregister_vote_pool;
+      BlockchainObjects() :
+        m_blockchain(m_mempool, m_utility_node_list, m_deregister_vote_pool),
+        m_utility_node_list(m_blockchain),
+        m_mempool(m_blockchain) { }
+    };
+    BlockchainObjects* blockchain_objects = new BlockchainObjects();
+    core_storage[n] = &(blockchain_objects->m_blockchain);
   }
 
   const std::string cache_dir = (output_file_path / "spent-outputs-cache").string();

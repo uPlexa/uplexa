@@ -7934,7 +7934,8 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
         std::string double_spend_note;
         if (i->second.m_double_spend_seen)
           double_spend_note = tr("[Double spend seen on the network: this transaction may or may not end up being mined] ");
-          transfers.push_back({
+
+        transfers.push_back({
             tr("pool"),
             pd.m_timestamp,
             tools::pay_type::in,
@@ -7947,7 +7948,7 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
             {{"-", pd.m_amount}},
             {pd.m_subaddr_index.minor},
             note + double_spend_note
-          });
+        });
       }
     }
     catch (const std::exception& e)

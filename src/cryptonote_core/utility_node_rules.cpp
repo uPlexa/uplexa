@@ -11,9 +11,7 @@ namespace utility_nodes {
 uint64_t get_staking_requirement(cryptonote::network_type m_nettype, uint64_t height)
 {
     if (m_nettype == cryptonote::TESTNET || m_nettype == cryptonote::FAKECHAIN)
-        //return COIN * 100;
-        return 200000000; // 20,000 UPX on testnut
-    //uint64_t hardfork_height = m_nettype == cryptonote::MAINNET ? 101250 : 96210 /* stagenet */;
+      return 2000000; // 20,000 UPX on testnut
     uint64_t hardfork_height = m_nettype == cryptonote::MAINNET ? 101250 : 96210 /* stagenet */;
     if (height < hardfork_height) height = hardfork_height;
     /*
@@ -23,7 +21,7 @@ uint64_t get_staking_requirement(cryptonote::network_type m_nettype, uint64_t he
     uint64_t linear_up = (uint64_t)(5 * COIN * height / 2592) + 8000 * COIN;
     uint64_t flat = 15000 * COIN;
     return std::max(base + variable, height < 3628800 ? linear_up : flat);*/
-    return 200000000; // Static, for now.
+    return 200000000; // 2M Static, for now.
 }
 
 uint64_t portions_to_amount(uint64_t portions, uint64_t staking_requirement)

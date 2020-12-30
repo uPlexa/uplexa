@@ -1253,12 +1253,14 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
       MERROR("Governance reward amount incorrect.  Should be: " << print_money(reward_parts.governance) << ", is: " << print_money(b.miner_tx.vout.back().amount));
       return false;
     } */
-
+    /*
     if (!validate_governance_reward_key(m_db->height(), *cryptonote::get_config(m_nettype, version).GOVERNANCE_WALLET_ADDRESS, b.miner_tx.vout.size() - 1, boost::get<txout_to_key>(b.miner_tx.vout.back().target).key, m_nettype))
     {
       MERROR("Governance reward public key incorrect.");
       return false;
     }
+    */
+    
   }
 
   base_reward = reward_parts.adjusted_base_reward;

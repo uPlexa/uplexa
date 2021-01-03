@@ -102,9 +102,9 @@ t_command_server::t_command_server(
   , "Print the quorum state for the block height."
   );
   m_command_lookup.set_handler(
-      "print_sn_key"
-    , std::bind(&t_command_parser_executor::print_sn_key, &m_parser, p::_1)
-    , "print_sn_key"
+      "print_un_key"
+    , std::bind(&t_command_parser_executor::print_un_key, &m_parser, p::_1)
+    , "print_un_key"
     , "Print this daemon's utility node key, if it is one and launched in utility node mode."
     );
   m_command_lookup.set_handler(
@@ -120,15 +120,15 @@ t_command_server::t_command_server(
     , "Interactive prompt to prepare the registration. The resulting registration data is saved to disk."
     );
   m_command_lookup.set_handler(
-      "print_sn"
-    , std::bind(&t_command_parser_executor::print_sn, &m_parser, p::_1)
-    , "print_sn [<pubkey> [...]]"
+      "print_un"
+    , std::bind(&t_command_parser_executor::print_un, &m_parser, p::_1)
+    , "print_un [<pubkey> [...]]"
     , "Print utility node registration info for the current height"
     );
   m_command_lookup.set_handler(
-      "print_sn_status"
-    , std::bind(&t_command_parser_executor::print_sn_status, &m_parser, p::_1)
-    , "print_sn_status"
+      "print_un_status"
+    , std::bind(&t_command_parser_executor::print_un_status, &m_parser, p::_1)
+    , "print_un_status"
     , "Print utility node registration info for this utility node"
     );
   m_command_lookup.set_handler(

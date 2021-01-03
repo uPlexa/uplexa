@@ -6620,7 +6620,7 @@ bool wallet2::is_output_blackballed(const std::pair<uint64_t, uint64_t> &output)
 }
 
 
-bool wallet2::check_stake_allowed(const crypto::public_key& sn_key, const cryptonote::address_parse_info& addr_info, uint64_t& amount) {
+bool wallet2::check_stake_allowed(const crypto::public_key& un_key, const cryptonote::address_parse_info& addr_info, uint64_t& amount) {
 
   if (addr_info.has_payment_id) {
     LOG_ERROR("Do not use payment ids for staking.");
@@ -6639,7 +6639,7 @@ bool wallet2::check_stake_allowed(const crypto::public_key& sn_key, const crypto
   }
 
   /// check that the utility node is registered
-  const auto& response = this->get_utility_nodes({ epee::string_tools::pod_to_hex(sn_key) });
+  const auto& response = this->get_utility_nodes({ epee::string_tools::pod_to_hex(un_key) });
   if (response.utility_node_states.size() != 1)
   {
     LOG_ERROR("Could not find utility node in utility node list, please make sure it is registered first.");

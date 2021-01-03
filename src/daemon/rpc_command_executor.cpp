@@ -2127,7 +2127,7 @@ static void print_utility_node_list_state(cryptonote::network_type nettype, int 
   }
 }
 
-bool t_rpc_command_executor::print_sn(const std::vector<std::string> &args)
+bool t_rpc_command_executor::print_un(const std::vector<std::string> &args)
 {
     cryptonote::COMMAND_RPC_GET_UTILITY_NODES::request req = {};
     cryptonote::COMMAND_RPC_GET_UTILITY_NODES::response res = {};
@@ -2263,7 +2263,7 @@ bool t_rpc_command_executor::print_sn(const std::vector<std::string> &args)
     return true;
 }
 
-bool t_rpc_command_executor::print_sn_status()
+bool t_rpc_command_executor::print_un_status()
 {
   cryptonote::COMMAND_RPC_GET_UTILITY_NODE_KEY::response res = {};
   {
@@ -2289,8 +2289,8 @@ bool t_rpc_command_executor::print_sn_status()
     }
   }
 
-  std::string const &sn_key_str = res.utility_node_pubkey;
-  bool result = print_sn({sn_key_str});
+  std::string const &un_key_str = res.utility_node_pubkey;
+  bool result = print_un({un_key_str});
   return result;
 }
 
@@ -2324,7 +2324,7 @@ bool t_rpc_command_executor::print_sr(uint64_t height)
   return true;
 }
 
-bool t_rpc_command_executor::print_sn_key()
+bool t_rpc_command_executor::print_un_key()
 {
   cryptonote::COMMAND_RPC_GET_UTILITY_NODE_KEY::request req = {};
   cryptonote::COMMAND_RPC_GET_UTILITY_NODE_KEY::response res = {};

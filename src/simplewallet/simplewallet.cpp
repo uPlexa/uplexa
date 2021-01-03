@@ -5558,7 +5558,7 @@ bool simple_wallet::register_utility_node_main(
   if (submitted_to_network && !autostake)
   {
     success_msg_writer() << tr("Wait for transaction to be included in a block before registration is complete.\n")
-                         << tr("Use the print_sn command in the daemon to check the status.");
+                         << tr("Use the print_un command in the daemon to check the status.");
   }
 
   return true;
@@ -6172,17 +6172,17 @@ bool simple_wallet::stake(const std::vector<std::string> &args_)
       }
     }
 
-    if (amount_fraction == 0) // Fixed amount monero warning
+    if (amount_fraction == 0) // Fixed amount warning
     {
-      success_msg_writer(false/*color*/) << tr("You're autostaking to a utility node using a fixed amount of monero: ")
+      success_msg_writer(false/*color*/) << tr("You're autostaking to a utility node using a fixed amount of uplexa: ")
           << print_money(amount)
           << tr(".\nThe staking requirement will be different after the utility node expires. Staking a fixed amount "
                 "may change your percentage of stake towards the utility node and consequently your block reward allocation.")
          << tr("\n\nIf this behaviour is not desirable, please reuse the staking command with a percentage sign.");
 
-      if (!input_line_and_parse_yes_no_result("Accept staking with a fixed amount of monero"))
+      if (!input_line_and_parse_yes_no_result("Accept staking with a fixed amount of uplexa"))
       {
-        fail_msg_writer() << tr("Staking transaction with fixed monero specified cancelled.");
+        fail_msg_writer() << tr("Staking transaction with fixed uplexa specified cancelled.");
         return true;
       }
 
@@ -7890,7 +7890,7 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
 
         // NOTE: If any output is locked at all, consider the transfer locked.
         uint64_t lock_duration = unlock_time - pd.m_block_height;
-        locked |= (!m_wallet->is_tx_spendtime_unlocked(pd.m_unlock_time, pd.m_block_height));
+        locked |= (!m_wallet->is_transfer_unlocked(unlock_time, pd.m_block_height));
         if (lock_duration >= staking_duration) type = tools::pay_type::stake;
       }
 
@@ -7899,20 +7899,20 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
         payment_id = payment_id.substr(0,16);
       std::string note = m_wallet->get_tx_note(i->first);
 
-            transfers.push_back({
-              pd.m_block_height,
-              pd.m_timestamp,
-              type,
-              true, // confirmed
-              !locked,
-              pd.m_amount_in - change - fee,
-              i->first,
-              payment_id,
-              fee,
-              destinations,
-              pd.m_subaddr_indices,
-              note
-            });
+      transfers.push_back({
+        pd.m_block_height,
+        pd.m_timestamp,
+        type,
+        true, // confirmed
+        !locked,
+        pd.m_amount_in - change - fee,
+        i->first,
+        payment_id,
+        fee,
+        destinations,
+        pd.m_subaddr_indices,
+        note
+      });
     }
   }
 
@@ -7936,18 +7936,18 @@ bool simple_wallet::get_transfers(std::vector<std::string>& local_args, std::vec
           double_spend_note = tr("[Double spend seen on the network: this transaction may or may not end up being mined] ");
 
         transfers.push_back({
-            tr("pool"),
-            pd.m_timestamp,
-            tools::pay_type::in,
-            false, // confirmed
-            false, // unlocked
-            pd.m_amount,
-            pd.m_tx_hash,
-            payment_id,
-            0,
-            {{"-", pd.m_amount}},
-            {pd.m_subaddr_index.minor},
-            note + double_spend_note
+          tr("pool"),
+          pd.m_timestamp,
+          tools::pay_type::in,
+          false, // confirmed
+          false, // unlocked
+          pd.m_amount,
+          pd.m_tx_hash,
+          payment_id,
+          0,
+          {{"-", pd.m_amount}},
+          {pd.m_subaddr_index.minor},
+          note + double_spend_note
         });
       }
     }

@@ -79,15 +79,15 @@ public:
 
   bool print_quorum_state(const std::vector<std::string>& args);
 
-  bool print_sn_key(const std::vector<std::string>& args);
+  bool print_un_key(const std::vector<std::string>& args);
 
   bool print_sr(const std::vector<std::string>& args);
 
   bool register_node();
 
-  bool print_sn(const std::vector<std::string>& args);
+  bool print_un(const std::vector<std::string>& args);
 
-  bool print_sn_status(const std::vector<std::string>& args);  
+  bool print_un_status(const std::vector<std::string>& args);  
 
   bool set_log_level(const std::vector<std::string>& args);
 

@@ -158,15 +158,15 @@ public:
 
   bool get_utility_node_registration_cmd(const std::vector<std::string> &args);
 
-  bool print_sn_key();
+  bool print_un_key();
 
-  bool print_sn_status();
+  bool print_un_status();
 
   bool print_sr(uint64_t height);
 
   bool register_node();
 
-  bool print_sn(const std::vector<std::string> &args);  
+  bool print_un(const std::vector<std::string> &args);  
 };
 
 } // namespace daemonize

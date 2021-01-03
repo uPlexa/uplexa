@@ -69,7 +69,7 @@ namespace utility_nodes
 
   void utility_node_list::register_hooks(utility_nodes::quorum_cop &quorum_cop)
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     if (!m_hooks_registered)
     {
       m_hooks_registered = true;
@@ -87,8 +87,8 @@ namespace utility_nodes
 
   void utility_node_list::init()
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
-    if (m_blockchain.get_current_hard_fork_version() < 13) // Starts at 13
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
+    if (m_blockchain.get_current_hard_fork_version() < 13)
     {
       clear(true);
       return;
@@ -151,7 +151,7 @@ namespace utility_nodes
 
   const std::shared_ptr<const quorum_state> utility_node_list::get_quorum_state(uint64_t height) const
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     const auto &it = m_quorum_states.find(height);
     if (it == m_quorum_states.end())
     {
@@ -167,7 +167,7 @@ namespace utility_nodes
 
   std::vector<utility_node_pubkey_info> utility_node_list::get_utility_node_list_state(const std::vector<crypto::public_key> &utility_node_pubkeys) const
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     std::vector<utility_node_pubkey_info> result;
 
     if (utility_node_pubkeys.empty())
@@ -203,19 +203,19 @@ namespace utility_nodes
 
   void utility_node_list::set_db_pointer(cryptonote::BlockchainDB* db)
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     m_db = db;
   }
 
   void utility_node_list::set_my_utility_node_keys(crypto::public_key const *pub_key)
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     m_utility_node_pubkey = pub_key;
   }
 
   bool utility_node_list::is_utility_node(const crypto::public_key& pubkey) const
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     return m_utility_nodes_infos.find(pubkey) != m_utility_nodes_infos.end();
   }
 
@@ -360,11 +360,11 @@ namespace utility_nodes
   static crypto::public_key pop_random_unode(std::mt19937_64& mt, std::vector<crypto::public_key>& vec)
   {
     const auto idx = uniform_distribution_portable(mt, vec.size());
-    const auto sn_pk = vec.at(idx);
+    const auto un_pk = vec.at(idx);
     auto it = vec.begin();
     std::advance(it, idx);
     vec.erase(it);
-    return sn_pk;
+    return un_pk;
   }
 
 
@@ -398,8 +398,8 @@ namespace utility_nodes
         const size_t needed = MIN_SWARM_SIZE - swarm_to_unodes.at(swarm_id).size();
 
         for (auto j = 0u; j < needed && !swarm_buffer.empty(); ++j) {
-          const auto sn_pk = pop_random_unode(mersenne_twister, swarm_buffer);
-          swarm_to_unodes.at(swarm_id).push_back(sn_pk);
+          const auto un_pk = pop_random_unode(mersenne_twister, swarm_buffer);
+          swarm_to_unodes.at(swarm_id).push_back(un_pk);
         }
 
         if (swarm_buffer.empty()) break;
@@ -425,8 +425,8 @@ namespace utility_nodes
               break;
             }
 
-            const crypto::public_key sn_pk = pop_random_unode(mersenne_twister, swarm_to_unodes.at(large_swarm));
-            swarm_to_unodes.at(swarm_id).push_back(sn_pk);
+            const crypto::public_key un_pk = pop_random_unode(mersenne_twister, swarm_to_unodes.at(large_swarm));
+            swarm_to_unodes.at(swarm_id).push_back(un_pk);
         }
 
         if (!can_continue) break;
@@ -444,8 +444,8 @@ namespace utility_nodes
 
         if (swarm.size() == MAX_SWARM_SIZE) break;
 
-        const auto sn_pk = pop_random_unode(mersenne_twister, swarm_buffer);
-        swarm.push_back(sn_pk);
+        const auto un_pk = pop_random_unode(mersenne_twister, swarm_buffer);
+        swarm.push_back(un_pk);
       }
     }
 
@@ -524,12 +524,12 @@ namespace utility_nodes
 
       for (const auto unode : unodes) {
 
-        auto& sn_info = m_utility_nodes_infos.at(unode);
-        if (sn_info.swarm_id == swarm_id) continue; /// nothing changed for this unode
+        auto& un_info = m_utility_nodes_infos.at(unode);
+        if (un_info.swarm_id == swarm_id) continue; /// nothing changed for this unode
 
         /// modify info and record the change
-        m_rollback_events.push_back(std::unique_ptr<rollback_event>(new rollback_change(height, unode, sn_info)));
-        sn_info.swarm_id = swarm_id;
+        m_rollback_events.push_back(std::unique_ptr<rollback_event>(new rollback_change(height, unode, un_info)));
+        un_info.swarm_id = swarm_id;
       }
 
     }
@@ -764,7 +764,7 @@ namespace utility_nodes
 
   void utility_node_list::block_added(const cryptonote::block& block, const std::vector<cryptonote::transaction>& txs)
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     block_added_generic(block, txs);
     store();
   }
@@ -867,7 +867,7 @@ namespace utility_nodes
 
   void utility_node_list::blockchain_detached(uint64_t height)
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     while (!m_rollback_events.empty() && m_rollback_events.back()->m_block_height >= height)
     {
       if (!m_rollback_events.back()->apply(m_utility_nodes_infos))
@@ -951,7 +951,7 @@ namespace utility_nodes
 
   std::vector<std::pair<cryptonote::account_public_address, uint64_t>> utility_node_list::get_winner_addresses_and_portions(const crypto::hash& prev_id) const
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     crypto::public_key key = select_winner(prev_id);
     if (key == crypto::null_pkey)
       return { std::make_pair(null_address, STAKING_PORTIONS) };
@@ -979,7 +979,7 @@ namespace utility_nodes
 
   crypto::public_key utility_node_list::select_winner(const crypto::hash& prev_id) const
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     auto oldest_waiting = std::pair<uint64_t, uint32_t>(std::numeric_limits<uint64_t>::max(), std::numeric_limits<uint32_t>::max());
     crypto::public_key key = crypto::null_pkey;
     for (const auto& info : m_utility_nodes_infos)
@@ -999,14 +999,14 @@ namespace utility_nodes
   //
   bool utility_node_list::validate_miner_tx(const crypto::hash& prev_id, const cryptonote::transaction& miner_tx, uint64_t height, int hard_fork_version, cryptonote::block_reward_parts const &reward_parts) const
   {
-    std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+    std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
     if (hard_fork_version < 13)
       return true;
 
     // NOTE(uPlexa): Utility node reward distribution is calculated from the
     // original amount, i.e. 20% of the original base reward goes to service
     // nodes not 20% of the reward after removing the governance component (the
-    // adjusted base reward post hardfork 10).
+    // adjusted base reward post hardfork 13).
     uint64_t base_reward = reward_parts.original_base_reward;
     uint64_t total_utility_node_reward = cryptonote::utility_node_reward_formula(base_reward, hard_fork_version);
 
@@ -1179,7 +1179,7 @@ namespace utility_nodes
     CHECK_AND_ASSERT_MES(m_db != nullptr, false, "Failed to store utility node info, m_db == nullptr");
     data_members_for_serialization data_to_store;
     {
-      std::lock_guard<boost::recursive_mutex> lock(m_sn_mutex);
+      std::lock_guard<boost::recursive_mutex> lock(m_un_mutex);
 
       quorum_state_for_serialization quorum;
       for(const auto& kv_pair : m_quorum_states)

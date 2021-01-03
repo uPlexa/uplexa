@@ -293,8 +293,8 @@ bool Wallet::paymentIdValid(const string &paiment_id)
 
 bool Wallet::serviceNodePubkeyValid(const std::string &str)
 {
-    crypto::public_key sn_key;
-    return epee::string_tools::hex_to_pod(str, sn_key);
+    crypto::public_key un_key;
+    return epee::string_tools::hex_to_pod(str, un_key);
 }
 
 bool Wallet::addressValid(const std::string &str, NetworkType nettype)
@@ -2328,10 +2328,10 @@ bool WalletImpl::isKeysFileLocked()
     return m_wallet->is_keys_file_locked();
 }
 
-PendingTransaction* WalletImpl::stakePending(const std::string& sn_key_str, const std::string& address_str, const std::string& amount_str)
+PendingTransaction* WalletImpl::stakePending(const std::string& un_key_str, const std::string& address_str, const std::string& amount_str)
 {
-  crypto::public_key sn_key;
-  if (!epee::string_tools::hex_to_pod(sn_key_str, sn_key)) {
+  crypto::public_key un_key;
+  if (!epee::string_tools::hex_to_pod(un_key_str, un_key)) {
     LOG_ERROR("failed to parse utility node pubkey");
     return nullptr;
   }
@@ -2352,7 +2352,7 @@ PendingTransaction* WalletImpl::stakePending(const std::string& sn_key_str, cons
   /// Note(maxim): need to be careful to call `WalletImpl::disposeTransaction` when it is no longer needed
   PendingTransactionImpl * transaction = new PendingTransactionImpl(*this);
 
-  transaction->m_pending_tx = m_wallet->create_stake_tx(sn_key, addr_info, amount);
+  transaction->m_pending_tx = m_wallet->create_stake_tx(un_key, addr_info, amount);
 
   return transaction;
 }

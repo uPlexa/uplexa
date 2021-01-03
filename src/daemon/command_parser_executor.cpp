@@ -144,10 +144,10 @@ bool t_command_parser_executor::print_quorum_state(const std::vector<std::string
   return m_executor.print_quorum_state(height);
 }
 
-bool t_command_parser_executor::print_sn_key(const std::vector<std::string>& args)
+bool t_command_parser_executor::print_un_key(const std::vector<std::string>& args)
 {
   if (!args.empty()) return false;
-  bool result = m_executor.print_sn_key();
+  bool result = m_executor.print_un_key();
   return result;
 }
 
@@ -176,16 +176,16 @@ bool t_command_parser_executor::register_node()
   return result;
 }
 
-bool t_command_parser_executor::print_sn(const std::vector<std::string>& args)
+bool t_command_parser_executor::print_un(const std::vector<std::string>& args)
 {
-  bool result = m_executor.print_sn(args);
+  bool result = m_executor.print_un(args);
   return result;
 }
 
-bool t_command_parser_executor::print_sn_status(const std::vector<std::string>& args)
+bool t_command_parser_executor::print_un_status(const std::vector<std::string>& args)
 {
   if (!args.empty()) return false;
-  bool result = m_executor.print_sn_status();
+  bool result = m_executor.print_un_status();
   return result;
 }
 

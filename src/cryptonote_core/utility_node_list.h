@@ -289,7 +289,7 @@ namespace utility_nodes
     void clear(bool delete_db_entry = false);
     bool load();
 
-    mutable boost::recursive_mutex m_sn_mutex;
+    mutable boost::recursive_mutex m_un_mutex;
 
     using block_height = uint64_t;
 

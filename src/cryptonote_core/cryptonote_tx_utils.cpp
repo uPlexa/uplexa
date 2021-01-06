@@ -133,7 +133,9 @@ namespace cryptonote
 
     return correct_key == output_key;
   }
-
+  // Note: We still have not had a community discussion over governance and whether or not we would like to implement a governance.
+  // We could also use governance as liquidity rewards to those who provide liquidity for wUPX.
+  // TODO: Have a community discussion on this topic
   const int GOVERNANCE_BASE_REWARD_DIVISOR   = 20; // 5%
   const int UTILITY_NODE_BASE_REWARD_DIVISOR = 5; // 20%
   uint64_t governance_reward_formula(uint64_t base_reward)
@@ -152,8 +154,8 @@ namespace cryptonote
     if (height == 0)
       return false;
 
-    if (hard_fork_version >= 100) // <= 13
-      return true;
+    if (hard_fork_version <= 13)
+      return false;
 
     const cryptonote::config_t &network = cryptonote::get_config(nettype, hard_fork_version);
     if (height % network.GOVERNANCE_REWARD_INTERVAL_IN_BLOCKS != 0)

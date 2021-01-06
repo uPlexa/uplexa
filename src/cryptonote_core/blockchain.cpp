@@ -1260,7 +1260,7 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
       return false;
     }
     */
-    
+
   }
 
   base_reward = reward_parts.adjusted_base_reward;
@@ -4143,7 +4143,9 @@ bool Blockchain::calc_batched_governance_reward(uint64_t height, uint64_t &rewar
 {
   reward = 0;
   int hard_fork_version = get_ideal_hard_fork_version(height);
-  if (hard_fork_version == 13) //? <=
+
+  // Only enable batched governance payouts > hf v13
+  if (hard_fork_version <= 13)
   {
     return true;
   }
@@ -4178,7 +4180,7 @@ bool Blockchain::calc_batched_governance_reward(uint64_t height, uint64_t &rewar
   for (const auto &it : blocks)
   {
     cryptonote::block const &block = it.second;
-    if (block.major_version >= 13) // Starting after 14
+    if (block.major_version >= 13) // Starting after 13
       reward += derive_governance_from_block_reward(nettype(), block);
   }
 

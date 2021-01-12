@@ -2637,6 +2637,10 @@ bool t_rpc_command_executor::register_node()
   }
 
   bool autostaking = false;
+  // Disable automatic re-staking. Do not prompt user. We will replace this with a new method
+  // We could set to always staking, and a deregistration period of X Days?
+
+  /*
   std::cout << "Enable automatic re-staking? [Y/N]: ";
   std::string autostake_str;
   std::cin >> autostake_str;
@@ -2654,6 +2658,7 @@ bool t_rpc_command_executor::register_node()
     mlog_set_categories(categories.c_str());
     return true;
   }
+  */
 
   std::cout << "Summary:" << std::endl;
   std::cout << "Operating costs as % of reward: " << (operating_cost_portions * 100.0 / STAKING_PORTIONS) << "%" << std::endl;

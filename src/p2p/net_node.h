@@ -261,7 +261,7 @@ namespace nodetool
 
     typedef epee::net_utils::boosted_tcp_server<epee::levin::async_protocol_handler<p2p_connection_context> > net_server;
 
-    struct config
+    struct config_t
     {
       network_config m_net_config;
       uint64_t m_peer_id;
@@ -273,6 +273,7 @@ namespace nodetool
         KV_SERIALIZE(m_support_flags)
       END_KV_SERIALIZE_MAP()
     };
+    typedef epee::misc_utils::struct_init<config_t> config;
 
   public:
     config m_config; // TODO was private, add getters?

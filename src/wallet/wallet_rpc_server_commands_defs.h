@@ -1,22 +1,22 @@
 
 // Copyright (c) 2014-2019, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -26,7 +26,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -49,6 +49,7 @@
 // Don't go over 32767 for any of these
 #define WALLET_RPC_VERSION_MAJOR 1
 #define WALLET_RPC_VERSION_MINOR 6
+
 #define MAKE_WALLET_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define WALLET_RPC_VERSION MAKE_WALLET_RPC_VERSION(WALLET_RPC_VERSION_MAJOR, WALLET_RPC_VERSION_MINOR)
 namespace tools
@@ -861,7 +862,7 @@ namespace wallet_rpc
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct transfer_details
   {
     uint64_t amount;
@@ -1746,8 +1747,8 @@ namespace wallet_rpc
 
       BEGIN_KV_SERIALIZE_MAP()
         KV_SERIALIZE(threads_count)
-        KV_SERIALIZE(do_background_mining)        
-        KV_SERIALIZE(ignore_battery)        
+        KV_SERIALIZE(do_background_mining)
+        KV_SERIALIZE(ignore_battery)
       END_KV_SERIALIZE_MAP()
     };
 
@@ -1902,7 +1903,7 @@ namespace wallet_rpc
       END_KV_SERIALIZE_MAP()
     };
   };
-  
+
   struct COMMAND_RPC_IS_MULTISIG
   {
     struct request
@@ -2119,6 +2120,41 @@ namespace wallet_rpc
         KV_SERIALIZE(version)
       END_KV_SERIALIZE_MAP()
     };
+  };
+
+  struct COMMAND_RPC_VALIDATE_ADDRESS
+  {
+    struct request
+    {
+      std::string address;
+      bool any_net_type;
+      bool allow_openalias;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(address)
+        KV_SERIALIZE_OPT(any_net_type, false)
+        KV_SERIALIZE_OPT(allow_openalias, false)
+      END_KV_SERIALIZE_MAP()
+    };
+
+
+    struct response
+    {
+      bool valid;
+      bool integrated;
+      bool subaddress;
+      std::string nettype;
+      std::string openalias_address;
+
+      BEGIN_KV_SERIALIZE_MAP()
+        KV_SERIALIZE(valid)
+        KV_SERIALIZE(integrated)
+        KV_SERIALIZE(subaddress)
+        KV_SERIALIZE(nettype)
+        KV_SERIALIZE(openalias_address)
+      END_KV_SERIALIZE_MAP()
+    };
+
   };
 
 }

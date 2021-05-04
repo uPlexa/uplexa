@@ -75,7 +75,7 @@ using namespace epee;
 #include "ringct/rctSigs.h"
 #include "ringdb.h"
 #include "device/device_cold.hpp"
-#include "device_trezor/device_trezor.hpp"
+//#include "device_trezor/device_trezor.hpp"
 
 #include "cryptonote_core/utility_node_rules.h"
 

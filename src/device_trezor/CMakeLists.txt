@@ -66,8 +66,7 @@ set(trezor_private_headers)
 include(FindProtobuf)
 find_package(Protobuf)  # REQUIRED
 
-# Test for HAVE_PROTOBUF from the parent
-if(Protobuf_FOUND AND HAVE_PROTOBUF)
+if(Protobuf_FOUND AND HAVE_PROTOBUF AND WITH_TREZOR)
     if ("$ENV{PYTHON3}" STREQUAL "")
         set(PYTHON3 "python3")
     else()

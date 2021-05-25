@@ -67,7 +67,7 @@ endif
 ifeq ($(host_os),linux)
 host_cmake=Linux
 endif
-ifeq ($(host_os),darwin)
+ifeq ($(host_os),darwin11)
 host_cmake=Darwin
 endif
 

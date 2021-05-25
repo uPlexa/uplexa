@@ -109,6 +109,8 @@ string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
 # before falling back to the system frameworks.
 set(CMAKE_FIND_FRAMEWORK "LAST")
 
+set(BACKCOMPAT ON) # Set backwards compatibility for now
+
 # ARCH defines the target architecture, either by an explicit identifier or
 # one of the following two keywords. By default, ARCH a value of 'native':
 # target arch = host arch, binary is not portable. When ARCH is set to the
@@ -958,7 +960,7 @@ if (HIDAPI_FOUND)
 endif()
 
 option(USE_READLINE "Build with GNU readline support." ON)
-if(USE_READLINE)
+if(USE_READLINE AND NOT DEPENDS)
   find_package(Readline)
   if(READLINE_FOUND AND GNU_READLINE_FOUND)
     add_definitions(-DHAVE_READLINE)
@@ -968,6 +970,14 @@ if(USE_READLINE)
   else()
     message(STATUS "Could not find GNU readline library so building without readline support")
   endif()
+elseif(USE_READLINE AND DEPENDS AND NOT MINGW)
+find_path(Readline_INCLUDE_PATH readline/readline.h)
+find_library(Readline_LIBRARY readline)
+find_library(Terminfo_LIBRARY tinfo)
+set(Readline_LIBRARY "${Readline_LIBRARY};${Terminfo_LIBRARY}")
+set(GNU_READLINE_LIBRARY ${Readline_LIBRARY})
+add_definitions(-DHAVE_READLINE)
+set(EPEE_READLINE epee_readline)
 endif()
 
 if(ANDROID)

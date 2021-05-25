@@ -189,7 +189,6 @@ namespace cryptonote
     if (!r)
       {
         MGINFO("Failed to parse tx from blob (1): " << epee::string_tools::buff_to_hex_nodelimer(tx_blob));
-        tools::log_stack_trace("");
       }
     CHECK_AND_ASSERT_MES(r, false, "Failed to parse transaction from blob");
     CHECK_AND_ASSERT_MES(expand_transaction_1(tx, false), false, "Failed to expand transaction data");
@@ -229,7 +228,6 @@ namespace cryptonote
     if (!r)
       {
         MGINFO("Failed to parse tx from blob (2): " << epee::string_tools::buff_to_hex_nodelimer(tx_blob));
-        tools::log_stack_trace("");
       }
     CHECK_AND_ASSERT_MES(r, false, "Failed to parse transaction from blob");
     CHECK_AND_ASSERT_MES(expand_transaction_1(tx, false), false, "Failed to expand transaction data");

@@ -107,3 +107,9 @@ local.properties
 .idea/
 
 /testnet
+logger
+contrib/depends/built
+contrib/depends/sources
+contrib/depends/work
+contrib/depends/x86_64-linux-gnu
+

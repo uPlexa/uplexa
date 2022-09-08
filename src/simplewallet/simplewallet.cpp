@@ -2405,7 +2405,9 @@ simple_wallet::simple_wallet()
                            tr("Send all unmixable outputs to yourself with ring_size 1"));
   m_cmd_binder.set_handler("sweep_all", boost::bind(&simple_wallet::sweep_all, this, _1),
                            tr("sweep_all [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] [outputs=<N>] <address> [<payment_id>]"),
-                           tr("Send all unlocked balance to an address. If the parameter \"index<N1>[,<N2>,...]\" is specified, the wallet sweeps outputs received by those address indices. If omitted, the wallet randomly chooses an address index to be used. If the parameter \"outputs=<N>\" is specified and  N > 0, wallet splits the transaction into N even outputs."));
+                           tr("Send all unlocked balance to an address. If the parameter \"index<N1>[,<N2>,...]\" is specified, the wallet sweeps outputs received by those address indices. If omitted, the wallet randomly chooses an address index to be used. If the parameter \"outputs=<N>\" is specified and  N > 0, wallet splits the transaction into N even outputs."
+                              " If \"use_v1_tx\" is placed at the end, sweep_all will include version 1 transactions into the sweeping process as well, otherwise exclude them"
+                           ));
   m_cmd_binder.set_handler("sweep_below",
                            boost::bind(&simple_wallet::sweep_below, this, _1),
                            tr("sweep_below <amount_threshold> [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> [<payment_id>]"),
@@ -6331,7 +6333,7 @@ bool simple_wallet::sweep_unmixable(const std::vector<std::string> &args_)
   return true;
 }
 //----------------------------------------------------------------------------------------------------
-bool simple_wallet::sweep_main(uint64_t below, bool locked, const std::vector<std::string> &args_)
+bool simple_wallet::sweep_main(uint64_t below, bool locked, const std::vector<std::string> &args_, tools::wallet2::sweep_style_t sweep_style)
 {
   auto print_usage = [below]()
   {
@@ -6536,7 +6538,7 @@ bool simple_wallet::sweep_main(uint64_t below, bool locked, const std::vector<st
   try
   {
     // figure out what tx will be necessary
-    auto ptx_vector = m_wallet->create_transactions_all(below, info.address, info.is_subaddress, outputs, CRYPTONOTE_TX_DEFAULT_MIX, unlock_block /* unlock_time */, priority, extra, m_current_subaddress_account, subaddr_indices);
+    auto ptx_vector = m_wallet->create_transactions_all(below, info.address, info.is_subaddress, outputs, CRYPTONOTE_TX_DEFAULT_MIX, unlock_block /* unlock_time */, priority, extra, m_current_subaddress_account, subaddr_indices, false, sweep_style);
 
     if (ptx_vector.empty())
     {
@@ -6893,7 +6895,20 @@ bool simple_wallet::sweep_single(const std::vector<std::string> &args_)
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::sweep_all(const std::vector<std::string> &args_)
 {
-  return sweep_main(0, false, args_);
+  std::vector<std::string> copied_args = args_;
+
+  tools::wallet2::sweep_style_t sweep_style = tools::wallet2::sweep_style_t::normal;
+  if (args_.size() > 0)
+  {
+    std::string const &last_arg = copied_args.back();
+    if (last_arg == "use_v1_tx")
+    {
+      sweep_style = tools::wallet2::sweep_style_t::use_v1_tx;
+      copied_args.erase(copied_args.end() - 1);
+    }
+  }
+
+  return sweep_main(0, false, copied_args, sweep_style);
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::sweep_below(const std::vector<std::string> &args_)

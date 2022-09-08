@@ -1418,6 +1418,8 @@ void wallet2::cache_tx_data(const cryptonote::transaction& tx, const crypto::has
 //----------------------------------------------------------------------------------------------------
 void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote::transaction& tx, const std::vector<uint64_t> &o_indices, uint64_t height, uint64_t ts, bool miner_tx, bool pool, bool double_spend_seen, const tx_cache_data &tx_cache_data)
 {
+  if (tx.version <= version_1) 
+    return;
   // In this function, tx (probably) only contains the base information
   // (that is, the prunable stuff may or may not be included)
   if (!miner_tx && !pool)
@@ -9063,7 +9065,7 @@ skip_tx:
   return ptx_vector;
 }
 
-std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below, const cryptonote::account_public_address &address, bool is_subaddress, const size_t outputs, const size_t fake_outs_count, const uint64_t unlock_time, uint32_t priority, const std::vector<uint8_t>& extra, uint32_t subaddr_account, std::set<uint32_t> subaddr_indices, bool is_staking_tx)
+std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below, const cryptonote::account_public_address &address, bool is_subaddress, const size_t outputs, const size_t fake_outs_count, const uint64_t unlock_time, uint32_t priority, const std::vector<uint8_t>& extra, uint32_t subaddr_account, std::set<uint32_t> subaddr_indices, bool is_staking_tx, sweep_style_t sweep_style)
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
@@ -9083,6 +9085,9 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below
       fund_found = true;
       if (below == 0 || td.amount() < below)
       {
+        if (td.m_tx.version <= transaction::version_1 && sweep_style != sweep_style_t::use_v1_tx)
+          continue;
+                  
         if ((td.is_rct()) || is_valid_decomposed_amount(td.amount()))
           unused_transfer_dust_indices_per_subaddr[td.m_subaddr_index.minor].first.push_back(i);
         else

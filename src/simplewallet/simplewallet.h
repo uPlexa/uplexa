@@ -163,7 +163,7 @@ namespace cryptonote
     bool stake(const std::vector<std::string> &args_);
     bool register_utility_node(const std::vector<std::string> &args_);
     bool locked_sweep_all(const std::vector<std::string> &args);
-    bool sweep_main(uint64_t below, bool locked, const std::vector<std::string> &args);
+    bool sweep_main(uint64_t below, bool locked, const std::vector<std::string> &args, tools::wallet2::sweep_style_t sweep_style = tools::wallet2::sweep_style_t::normal);
     bool sweep_all(const std::vector<std::string> &args);
     bool sweep_below(const std::vector<std::string> &args);
     bool sweep_single(const std::vector<std::string> &args);

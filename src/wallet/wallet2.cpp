@@ -1418,7 +1418,7 @@ void wallet2::cache_tx_data(const cryptonote::transaction& tx, const crypto::has
 //----------------------------------------------------------------------------------------------------
 void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote::transaction& tx, const std::vector<uint64_t> &o_indices, uint64_t height, uint64_t ts, bool miner_tx, bool pool, bool double_spend_seen, const tx_cache_data &tx_cache_data)
 {
-  if (tx.version <= version_1) 
+  if (tx.version <= 1) 
     return;
   // In this function, tx (probably) only contains the base information
   // (that is, the prunable stuff may or may not be included)
